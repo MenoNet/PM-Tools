@@ -55,32 +55,35 @@
         ProjectsListView(v-else-if="currentView === 'projects'" class="h-full" @open-project="openProject")
         ProjectDetailView(v-else-if="currentView === 'project-detail'" class="h-full")
         TeamView(v-else-if="currentView === 'team'" class="h-full")
-        IssuesView(v-else-if="currentView === 'issues'" class="h-full")
         UserGuideView(v-else-if="currentView === 'guide'" class="h-full")
 
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { appState } from './store/appState';
-import { LayoutGrid, Briefcase, Users, Activity, Settings as SettingsIcon, AlertCircle } from 'lucide-vue-next';
+import { ref } from "vue";
+import { appState } from "./store/appState";
+import {
+  LayoutGrid,
+  Briefcase,
+  Users,
+  Activity,
+  Settings as SettingsIcon,
+} from "lucide-vue-next";
 
 // Views
-import DashboardView from './views/Dashboard.vue';
-import ProjectsListView from './views/ProjectsList.vue';
-import ProjectDetailView from './views/ProjectDetail.vue';
-import TeamView from './views/TeamView.vue';
-import IssuesView from './views/IssuesView.vue';
-import UserGuideView from './views/UserGuide.vue';
+import DashboardView from "./views/Dashboard.vue";
+import ProjectsListView from "./views/ProjectsList.vue";
+import ProjectDetailView from "./views/ProjectDetail.vue";
+import TeamView from "./views/TeamView.vue";
+import UserGuideView from "./views/UserGuide.vue";
 
-const currentView = ref('dashboard');
+const currentView = ref("dashboard");
 
 const navItems = [
-  { id: 'dashboard', icon: LayoutGrid, label: 'Dashboard' },
-  { id: 'projects', icon: Briefcase, label: 'Projects' },
-  { id: 'team', icon: Users, label: 'Team Matrix' },
-  { id: 'issues', icon: AlertCircle, label: 'Issue Tracker' },
-  { id: 'guide', icon: Activity, label: 'User Guide' },
+  { id: "dashboard", icon: LayoutGrid, label: "Dashboard" },
+  { id: "projects", icon: Briefcase, label: "Projects" },
+  { id: "team", icon: Users, label: "Team Matrix" },
+  { id: "guide", icon: Activity, label: "User Guide" },
 ];
 
 const navigateTo = (id) => {
@@ -88,12 +91,12 @@ const navigateTo = (id) => {
 };
 
 const isActive = (id) => {
-  if (id === 'projects' && currentView.value === 'project-detail') return true;
+  if (id === "projects" && currentView.value === "project-detail") return true;
   return currentView.value === id;
 };
 
 const openProject = (projectId) => {
   appState.activeProjectId = projectId;
-  currentView.value = 'project-detail';
+  currentView.value = "project-detail";
 };
 </script>

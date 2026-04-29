@@ -54,36 +54,38 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { appState, getProjectProgress } from '../store/appState';
-import { Trash2 as Trash2Icon } from 'lucide-vue-next';
+import { ref } from "vue";
+import { appState, getProjectProgress } from "../store/appState";
+import { Trash2 as Trash2Icon } from "lucide-vue-next";
 
-defineEmits(['open-project']);
+defineEmits(["open-project"]);
 
 const newProject = ref({
-  name: '',
-  startDate: new Date().toISOString().split('T')[0]
+  name: "",
+  startDate: new Date().toISOString().split("T")[0],
 });
 
 const addProject = () => {
   if (!newProject.value.name) return;
-  const pId = 'p' + Date.now();
+  const pId = "p" + Date.now();
   appState.projects.push({
     id: pId,
     name: newProject.value.name,
-    description: '',
-    status: 'Planning',
+    description: "",
+    status: "Planning",
     startDate: newProject.value.startDate,
     endDate: newProject.value.startDate,
-    logs: [{ time: new Date().toLocaleTimeString(), msg: 'Project initialized.' }]
+    logs: [
+      { time: new Date().toLocaleTimeString(), msg: "Project initialized." },
+    ],
   });
-  newProject.value.name = '';
+  newProject.value.name = "";
 };
 
 const deleteProject = (id) => {
-  if(confirm("Confirm deletion of project and all associated tasks?")) {
-    appState.projects = appState.projects.filter(p => p.id !== id);
-    appState.tasks = appState.tasks.filter(t => t.projectId !== id);
+  if (confirm("Confirm deletion of project and all associated tasks?")) {
+    appState.projects = appState.projects.filter((p) => p.id !== id);
+    appState.tasks = appState.tasks.filter((t) => t.projectId !== id);
   }
 };
 </script>

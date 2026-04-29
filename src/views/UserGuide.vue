@@ -11,7 +11,7 @@
         h3.text-2xl.text-redAccent 01. DEPENDENCY RELATIONSHIPS
         .glass-panel.rounded-xl.p-6.flex.flex-col.gap-6
           p.text-sm.leading-relaxed
-            | The scheduling engine automates start and end dates based on logical relationships between tasks.
+            | The scheduling engine automates start and end dates based on logical relationships between tasks. The system supports **Multiple Predecessors** (comma-separated) and **Multiple Resource Assignments** per task.
           .grid.grid-cols-2.gap-4
             .p-4.bg-white_5.rounded-lg(class="bg-white/5")
               h4.font-bold.text-redAccent FS: FINISH-TO-START
@@ -67,5 +67,4 @@
         button.text-xs.text-metadata THEME-AWARE UI
 </template>
 
-<script setup>
-</script>
+<script setup></script>

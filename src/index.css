@@ -12,11 +12,11 @@
   .glass-card {
     @apply bg-white/[0.01] backdrop-blur-3xl border border-white/[0.05] shadow-2xl rounded-2xl;
   }
-  
+
   .glass-panel {
     @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05];
   }
-  
+
   .text-metadata {
     @apply text-[9px] uppercase tracking-[0.2em] text-white/50;
   }
@@ -38,6 +38,6 @@
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #E01E2E; /* redAccent */
+    background: #e01e2e; /* redAccent */
   }
 }

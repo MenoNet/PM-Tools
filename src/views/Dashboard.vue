@@ -1,6 +1,6 @@
 <template lang="pug">
 .h-full.w-full.flex.flex-col.gap-6.overflow-y-auto.pr-2
-  .grid.grid-cols-4.gap-6
+  .grid.grid-cols-5.gap-6
     //- Metrics Cards
     .glass-card.rounded-2xl.p-6.flex.flex-col.gap-4
       .flex.justify-between.items-center
@@ -33,6 +33,14 @@
       .text-5xl.text-header.text-redAccent {{ metrics.systemLoad }}%
       .w-full.bg-white_5.h-1.rounded-full.mt-auto(class="bg-white/5")
         .bg-redAccent.h-full.rounded-full(:style="{ width: metrics.systemLoad + '%' }")
+
+    .glass-card.rounded-2xl.p-6.flex.flex-col.gap-4
+      .flex.justify-between.items-center
+        span.text-metadata OPEN ISSUES
+        AlertCircleIcon.text-redAccent(:size="16")
+      .text-5xl.text-header {{ metrics.openIssues }}
+      .w-full.bg-white_5.h-1.rounded-full.mt-auto(class="bg-white/5")
+        .bg-redAccent.h-full.rounded-full(:style="{ width: (metrics.openIssues > 0 ? 100 : 0) + '%' }")
 
   .grid.grid-cols-3.gap-6
     //- Charts Section
@@ -94,18 +102,34 @@
 </template>
 
 <script setup>
-import { computed } from 'vue';
-import { Activity as ActivityIcon, List as ListIcon, CheckCircle as CheckCircleIcon, Cpu as CpuIcon, ArrowRight as ArrowRightIcon } from 'lucide-vue-next';
-import { appState, metrics, getProjectProgress } from '../store/appState';
-import { Doughnut } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, ArcElement, CategoryScale } from 'chart.js';
+import { computed } from "vue";
+import {
+  Activity as ActivityIcon,
+  List as ListIcon,
+  CheckCircle as CheckCircleIcon,
+  Cpu as CpuIcon,
+  ArrowRight as ArrowRightIcon,
+  AlertCircle as AlertCircleIcon,
+} from "lucide-vue-next";
+import { appState, metrics, getProjectProgress } from "../store/appState";
+import { Doughnut } from "vue-chartjs";
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  ArcElement,
+  CategoryScale,
+} from "chart.js";
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale);
 
-defineEmits(['open-project']);
+defineEmits(["open-project"]);
 
 const allLogs = computed(() => {
-  return appState.projects.flatMap(p => p.logs).sort((a, b) => b.time.localeCompare(a.time));
+  return appState.projects
+    .flatMap((p) => p.logs)
+    .sort((a, b) => b.time.localeCompare(a.time));
 });
 
 const chartOptions = {
@@ -113,48 +137,60 @@ const chartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      position: 'bottom',
+      position: "bottom",
       labels: {
-        color: 'rgba(255, 255, 255, 0.6)',
+        color: "rgba(255, 255, 255, 0.6)",
         font: { size: 10 },
-        padding: 20
-      }
-    }
-  }
+        padding: 20,
+      },
+    },
+  },
 };
 
 const statusChartData = computed(() => {
-  const tasks = appState.tasks.filter(t => !t.isParent);
-  const statusCounts = { 'To Do': 0, 'In Progress': 0, 'Completed': 0 };
-  tasks.forEach(t => {
+  const tasks = appState.tasks.filter((t) => !t.isParent);
+  const statusCounts = { "To Do": 0, "In Progress": 0, Completed: 0 };
+  tasks.forEach((t) => {
     if (statusCounts[t.status] !== undefined) statusCounts[t.status]++;
-    else if (t.status === 'In Review') statusCounts['In Progress']++;
+    else if (t.status === "In Review") statusCounts["In Progress"]++;
   });
 
   return {
-    labels: ['To Do', 'In Progress', 'Completed'],
-    datasets: [{
-      data: [statusCounts['To Do'], statusCounts['In Progress'], statusCounts['Completed']],
-      backgroundColor: ['rgba(255, 255, 255, 0.1)', 'rgba(224, 30, 46, 0.6)', 'rgba(34, 197, 94, 0.6)'],
-      borderColor: 'rgba(11, 11, 13, 1)',
-      borderWidth: 2
-    }]
+    labels: ["To Do", "In Progress", "Completed"],
+    datasets: [
+      {
+        data: [
+          statusCounts["To Do"],
+          statusCounts["In Progress"],
+          statusCounts["Completed"],
+        ],
+        backgroundColor: [
+          "rgba(255, 255, 255, 0.1)",
+          "rgba(224, 30, 46, 0.6)",
+          "rgba(34, 197, 94, 0.6)",
+        ],
+        borderColor: "rgba(11, 11, 13, 1)",
+        borderWidth: 2,
+      },
+    ],
   };
 });
 
 const criticalChartData = computed(() => {
-  const tasks = appState.tasks.filter(t => !t.isParent);
-  const critical = tasks.filter(t => t.isCritical).length;
+  const tasks = appState.tasks.filter((t) => !t.isParent);
+  const critical = tasks.filter((t) => t.isCritical).length;
   const standard = tasks.length - critical;
 
   return {
-    labels: ['Critical Path', 'Standard'],
-    datasets: [{
-      data: [critical, standard],
-      backgroundColor: ['rgba(224, 30, 46, 0.8)', 'rgba(32, 178, 170, 0.6)'],
-      borderColor: 'rgba(11, 11, 13, 1)',
-      borderWidth: 2
-    }]
+    labels: ["Critical Path", "Standard"],
+    datasets: [
+      {
+        data: [critical, standard],
+        backgroundColor: ["rgba(224, 30, 46, 0.8)", "rgba(32, 178, 170, 0.6)"],
+        borderColor: "rgba(11, 11, 13, 1)",
+        borderWidth: 2,
+      },
+    ],
   };
 });
 </script>
