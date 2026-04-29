@@ -1,102 +1,113 @@
 <template lang="pug">
-.flex.h-screen.w-screen.overflow-hidden
+.flex.h-screen.w-screen.overflow-hidden(:class="appState.theme")
   //- Sidebar Navigation
   aside.w-20.flex-shrink-0.flex.flex-col.items-center.py-8.border-r.glass-panel(class="border-white/[0.05]")
     .mb-12
       //- Brand Logo
-      .w-10.h-10.rounded-lg.bg-redAccent.flex.items-center.justify-center.shadow-lg(style="box-shadow: 0 0 20px rgba(224,30,46,0.3);")
-        span.font-black.text-white P
+      .w-12.h-12.rounded-lg.flex.items-center.justify-center.overflow-hidden
+        img.w-full.h-full.object-cover(src="/logo.png" alt="Dekode Logo")
     
-    nav.flex-1.w-full.flex.flex-col.gap-6.items-center
-      button.relative.p-3.rounded-xl.transition-all.duration-300(
-        v-for="item in navItems" 
+    nav.flex-1.flex.flex-col.gap-8
+      button.p-3.rounded-xl.transition-all.duration-700(
+        v-for="item in menuItems" 
         :key="item.id"
-        @click="navigateTo(item.id)"
-        :class="isActive(item.id) ? 'text-redAccent bg-redAccent/10' : 'text-metadata hover:text-redAccent hover:bg-white/5'"
-        :title="item.label"
+        @click="currentView = item.id"
+        :class="currentView === item.id ? 'bg-redAccent text-white shadow-[0_0_15px_rgba(224,30,46,0.5)]' : 'text-metadata hover_text-white'"
       )
-        //- Active Indicator Line
-        .absolute.left-0.top-1_2.-translate-y-1_2.w-1.h-8.bg-redAccent.rounded-r-md(
-          v-if="isActive(item.id)"
-        )
-        component(:is="item.icon" :size="24" :stroke-width="2")
-
-    .mt-auto.flex.flex-col.gap-4.items-center
-      button.p-3.rounded-xl.text-metadata.hover_text-redAccent.transition-colors
-        SettingsIcon(:size="24" :stroke-width="2")
+        component(:is="item.icon" :size="24")
+    
+    //- Theme Toggle
+    button.p-3.rounded-xl.text-metadata.hover_text-white.transition-all(@click="toggleTheme")
+      component(:is="appState.theme === 'dark' ? SunIcon : MoonIcon" :size="24")
 
   //- Main Content Area
-  main.flex-1.relative.overflow-hidden.flex.flex-col
-    //- Top Header / Status Bar
-    header.h-16.flex-shrink-0.border-b.glass-panel.flex.items-center.px-8.justify-between(class="border-white/[0.05]")
-      .flex.items-center.gap-4
-        h1.text-header.text-2xl PANOPTICON
-        .h-4.w-px.bg-white_20(class="bg-white/20")
-        span.text-metadata SYSTEM OPERATIONAL
-
+  main.flex-1.flex.flex-col.p-8.overflow-hidden.bg-app-bg
+    header.flex.justify-between.items-center.mb-8.flex-shrink-0
+      .flex.flex-col
+        h1.text-3xl.text-header DEKODE PM TOOLS
+        p.text-metadata(class="text-opacity-60") COMMAND &amp; CONTROL CENTER
+      
       .flex.items-center.gap-6
-        .flex.items-center.gap-2
-          .w-2.h-2.rounded-full.bg-redAccent.animate-pulse
-          span.text-metadata.text-redAccent LIVE SECURE LINK
-        .w-8.h-8.rounded-full.bg-white_10.border.border-white_20.overflow-hidden(class="bg-white/10 border-white/20")
-          img(src="https://api.dicebear.com/7.x/bottts/svg?seed=Admin" alt="User")
+        .flex.flex-col.items-end
+          span.text-metadata(class="text-[9px] tracking-[0.2em]") SYSTEM CLOCK (MYT)
+          span.font-mono.text-redAccent.text-xl.font-bold {{ currentTime }}
+        .w-12.h-12.rounded-full.bg-white_5.flex.items-center.justify-center.border.border-white_10(class="bg-white/5 border-white/10")
+          span.font-black AM
 
-    //- View Container
-    .flex-1.overflow-hidden.relative.p-6
-      Transition(
-        enter-active-class="transition-all duration-500 ease-out"
-        enter-from-class="opacity-0 translate-y-4 scale-95"
-        enter-to-class="opacity-100 translate-y-0 scale-100"
-        leave-active-class="transition-all duration-300 ease-in absolute inset-0"
-        leave-from-class="opacity-100 translate-y-0 scale-100"
-        leave-to-class="opacity-0 -translate-y-4 scale-95"
-      )
+    //- Content Switching
+    .flex-1.min-h-0
+      Transition(name="fade" mode="out-in")
         DashboardView(v-if="currentView === 'dashboard'" class="h-full" @open-project="openProject")
-        ProjectsListView(v-else-if="currentView === 'projects'" class="h-full" @open-project="openProject")
-        ProjectDetailView(v-else-if="currentView === 'project-detail'" class="h-full")
+        ProjectsList(v-else-if="currentView === 'projects'" class="h-full" @open-project="openProject")
+        ProjectDetail(v-else-if="currentView === 'detail'" class="h-full")
         TeamView(v-else-if="currentView === 'team'" class="h-full")
-        UserGuideView(v-else-if="currentView === 'guide'" class="h-full")
-
+        UserGuide(v-else-if="currentView === 'guide'" class="h-full")
 </template>
 
 <script setup>
-import { ref } from "vue";
-import { appState } from "./store/appState";
-import {
-  LayoutGrid,
-  Briefcase,
-  Users,
-  Activity,
-  Settings as SettingsIcon,
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import { 
+  LayoutDashboard as DashboardIcon, 
+  Briefcase as ProjectsIcon, 
+  Users as TeamIcon, 
+  Activity as ActivityIcon,
+  Sun as SunIcon,
+  Moon as MoonIcon,
+  HelpCircle as GuideIcon
 } from "lucide-vue-next";
+import { appState } from "./store/appState";
 
-// Views
+// Components
 import DashboardView from "./views/Dashboard.vue";
-import ProjectsListView from "./views/ProjectsList.vue";
-import ProjectDetailView from "./views/ProjectDetail.vue";
+import ProjectsList from "./views/ProjectsList.vue";
+import ProjectDetail from "./views/ProjectDetail.vue";
 import TeamView from "./views/TeamView.vue";
-import UserGuideView from "./views/UserGuide.vue";
+import UserGuide from "./views/UserGuide.vue";
 
 const currentView = ref("dashboard");
+const currentTime = ref("");
 
-const navItems = [
-  { id: "dashboard", icon: LayoutGrid, label: "Dashboard" },
-  { id: "projects", icon: Briefcase, label: "Projects" },
-  { id: "team", icon: Users, label: "Team Matrix" },
-  { id: "guide", icon: Activity, label: "User Guide" },
+const menuItems = [
+  { id: "dashboard", icon: DashboardIcon, label: "Dashboard" },
+  { id: "projects", icon: ProjectsIcon, label: "Portfolio" },
+  { id: "team", icon: TeamIcon, label: "Resources" },
+  { id: "guide", icon: GuideIcon, label: "Guide" },
 ];
 
-const navigateTo = (id) => {
-  currentView.value = id;
+const updateClock = () => {
+  const now = new Date();
+  // Malaysian Time (UTC+8)
+  currentTime.value = now.toLocaleTimeString('en-GB', { 
+    hour12: false,
+    timeZone: 'Asia/Kuala_Lumpur'
+  });
 };
 
-const isActive = (id) => {
-  if (id === "projects" && currentView.value === "project-detail") return true;
-  return currentView.value === id;
+let clockInterval;
+onMounted(() => {
+  updateClock();
+  clockInterval = setInterval(updateClock, 1000);
+});
+onUnmounted(() => clearInterval(clockInterval));
+
+const toggleTheme = () => {
+  appState.theme = appState.theme === 'dark' ? 'light' : 'dark';
 };
 
-const openProject = (projectId) => {
-  appState.activeProjectId = projectId;
-  currentView.value = "project-detail";
+const openProject = (id) => {
+  appState.activeProjectId = id;
+  currentView.value = 'detail';
 };
 </script>
+
+<style>
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.15s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

@@ -3,6 +3,18 @@ import { addDays, format, parseISO } from "date-fns";
 
 const defaultState = {
   activeProjectId: "p1",
+  dashboardContext: "GLOBAL",
+  dashboardLayout: [
+    { id: "metric-grid", type: "metrics", title: "Vital Signs", w: 3 },
+    { id: "deadlines", type: "list", title: "Upcoming Deadlines", w: 1 },
+    { id: "roadmap", type: "list", title: "Roadmap Snippet", w: 1 },
+    { id: "blockers", type: "list", title: "Active Blockers", w: 1 },
+    { id: "red-flags", type: "list", title: "Top Red Flags", w: 1 },
+    { id: "team-load", type: "list", title: "Resource Capacity", w: 1 },
+    { id: "activity", type: "list", title: "Recent Activity", w: 1 },
+    { id: "status-chart", type: "chart", title: "Task Status Dist.", w: 1 },
+    { id: "critical-chart", type: "chart", title: "Critical Path Analysis", w: 1 },
+  ],
   projects: [
     {
       id: "p1",
@@ -19,10 +31,23 @@ const defaultState = {
         {
           id: "i1",
           title: "Firewall Latency",
+          description: "High latency observed in sector 4 backbone.",
           priority: "High",
           status: "Open",
           type: "Bug",
+          dueDate: "2026-04-25",
+          assignees: ["o1"],
+          subtasks: [{ text: "Check router logs", done: true }, { text: "Reroute traffic", done: false }],
         },
+      ],
+      modes: [
+        { id: "overview", label: "OVERVIEW" },
+        { id: "board", label: "KANBAN" },
+        { id: "list", label: "WBS" },
+        { id: "tasks", label: "TASKS" },
+        { id: "timeline", label: "TIMELINE" },
+        { id: "heatmap", label: "HEATMAP" },
+        { id: "issues", label: "ISSUES" },
       ],
     },
   ],
@@ -57,80 +82,18 @@ const defaultState = {
       isParent: false,
       progress: 100,
     },
+  ],
+  conductTasks: [
     {
-      wbsId: "1.2",
+      id: "ct1",
       projectId: "p1",
-      title: "Intrusion Test",
+      title: "Create Figma Mockup",
+      description: "Design the initial security dashboard in Figma.",
       status: "In Progress",
-      assignees: ["o2"],
-      duration: 3,
-      predecessorIds: ["1.1"],
-      dependencyType: "FS",
-      lag: 0,
-      startDay: 3,
-      endDay: 5,
-      isParent: false,
-      progress: 50,
-    },
-    {
-      wbsId: "1.3",
-      projectId: "p1",
-      title: "Node Diagnostics",
-      status: "To Do",
-      assignees: ["o3"],
-      duration: 4,
-      predecessorIds: ["1.2"],
-      dependencyType: "FS",
-      lag: -1,
-      startDay: 5,
-      endDay: 8,
-      isParent: false,
-      progress: 0,
-    },
-    {
-      wbsId: "2",
-      projectId: "p1",
-      title: "Phase 2: Deployment",
-      status: "To Do",
-      assignees: [],
-      duration: 0,
-      predecessorIds: [],
-      dependencyType: "",
-      lag: 0,
-      startDay: 1,
-      endDay: 1,
-      isParent: true,
-      progress: 0,
-    },
-    {
-      wbsId: "2.1",
-      projectId: "p1",
-      title: "Patch Deployment",
-      status: "To Do",
       assignees: ["o1"],
-      duration: 5,
-      predecessorIds: ["1.3"],
-      dependencyType: "FS",
-      lag: 1,
-      startDay: 10,
-      endDay: 14,
-      isParent: false,
-      progress: 0,
-    },
-    {
-      wbsId: "2.2",
-      projectId: "p1",
-      title: "Subroutine Opt",
-      status: "To Do",
-      assignees: ["o2"],
-      duration: 3,
-      predecessorIds: ["2.1"],
-      dependencyType: "SS",
-      lag: 2,
-      startDay: 12,
-      endDay: 14,
-      isParent: false,
-      progress: 0,
+      priority: "High",
+      dueDate: "2026-04-25",
+      subtasks: [{ text: "Gather requirements", done: true }, { text: "Sketch wireframes", done: false }],
     },
   ],
   operatives: [
@@ -148,13 +111,6 @@ const defaultState = {
       dailyCapacity: 8,
       availability: 100,
     },
-    {
-      id: "o3",
-      name: "S. Chen",
-      role: "Hardware Tech",
-      dailyCapacity: 8,
-      availability: 50,
-    },
   ],
 };
 
@@ -163,36 +119,39 @@ const savedState = localStorage.getItem("panopticon_state");
 if (savedState) {
   try {
     initialState = JSON.parse(savedState);
-
-    // Migration logic
-    if (initialState.issues) {
-      initialState.issues.forEach((issue) => {
-        const proj = initialState.projects.find(
-          (p) => p.id === issue.projectId,
-        );
-        if (proj) {
-          if (!proj.issues) proj.issues = [];
-          proj.issues.push({
-            id: issue.id,
-            title: issue.title,
-            priority: issue.priority,
-            status: issue.status,
-            type: issue.type,
-          });
-        }
-      });
-      delete initialState.issues;
-    }
+    if (!initialState.dashboardContext) initialState.dashboardContext = "GLOBAL";
+    if (!initialState.conductTasks) initialState.conductTasks = [];
+    if (!initialState.dashboardLayout) initialState.dashboardLayout = defaultState.dashboardLayout;
 
     initialState.projects.forEach((p) => {
       if (!p.issues) p.issues = [];
+      p.issues.forEach(issue => {
+        if (!issue.subtasks) issue.subtasks = [];
+        if (!issue.assignees) issue.assignees = [];
+        if (!issue.description) issue.description = "";
+      });
+      if (!p.modes) {
+        p.modes = [
+          { id: "overview", label: "OVERVIEW" },
+          { id: "board", label: "KANBAN" },
+          { id: "list", label: "WBS" },
+          { id: "tasks", label: "TASKS" },
+          { id: "timeline", label: "TIMELINE" },
+          { id: "heatmap", label: "HEATMAP" },
+          { id: "issues", label: "ISSUES" },
+        ];
+      }
     });
+
+    initialState.conductTasks.forEach(task => {
+      if (!task.subtasks) task.subtasks = [];
+      if (!task.assignees) task.assignees = [];
+      if (!task.description) task.description = "";
+    });
+
     initialState.tasks.forEach((t) => {
       if (!t.assignees) t.assignees = [];
       if (!t.predecessorIds) t.predecessorIds = [];
-    });
-    initialState.operatives.forEach((op) => {
-      if (op.availability === undefined) op.availability = 100;
     });
   } catch (e) {
     console.error("Failed to migrate state", e);
@@ -317,20 +276,24 @@ export const calculateSchedule = () => {
   });
 };
 
-calculateSchedule();
-
 export const metrics = computed(() => {
-  const activeProjects = appState.projects.filter(
-    (p) => p.status === "Active",
-  ).length;
-  const subtasks = appState.tasks.filter((t) => !t.isParent);
-  const totalTasks = subtasks.length;
-  const completedTasks = subtasks.filter((t) => t.progress === 100).length;
-  const openIssues = appState.projects.reduce(
-    (sum, p) => sum + p.issues.filter((i) => i.status !== "Resolved").length,
-    0,
+  const isGlobal = appState.dashboardContext === "GLOBAL";
+  const projFilter = (item) => isGlobal || item.projectId === appState.dashboardContext || item.id === appState.dashboardContext;
+  
+  const filteredProjects = appState.projects.filter(p => isGlobal || p.id === appState.dashboardContext);
+  const activeProjects = filteredProjects.filter(p => p.status === "Active").length;
+  
+  const filteredTasks = appState.tasks.filter(t => !t.isParent && (isGlobal || t.projectId === appState.dashboardContext));
+  const totalTasks = filteredTasks.length;
+  const completedTasks = filteredTasks.filter(t => t.progress === 100).length;
+  
+  const openIssues = filteredProjects.reduce(
+    (sum, p) => sum + p.issues.filter(i => i.status !== "Resolved").length,
+    0
   );
+  
   const systemLoad = Math.min(100, Math.round((totalTasks / 20) * 100)) || 0;
+  
   return { activeProjects, totalTasks, completedTasks, systemLoad, openIssues };
 });
 
