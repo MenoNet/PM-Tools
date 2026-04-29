@@ -72,32 +72,36 @@
         .flex.items-center.justify-between.px-2
           span.text-metadata.tracking-widest {{ status.toUpperCase() }}
           .flex.gap-2
-            span.bg-white_10.px-2.rounded(class="text-[10px] bg-white/10 text-white/60") T:{{ getWbsTasksByStatus(status).length }}
+            span.bg-white_10.px-2.rounded(class="text-[10px] bg-white/10 text-white/60") T:{{ getConductTasksByStatus(status).length }}
             span.bg-redAccent_20.px-2.rounded(class="text-[10px] bg-redAccent/20 text-redAccent") I:{{ getIssuesByStatus(status).length }}
         
         .flex-1.flex.flex-col.gap-4.overflow-y-auto.pr-2
-          //- WBS TASKS SECTION
+          //- CONDUCT TASKS SECTION
           .flex.flex-col.gap-2
             .flex.items-center.gap-2
               span.text-white_40(class="text-[10px]") TASKS
               .flex-1.h-px.bg-white_10(class="bg-white/10")
             draggable.flex.flex-col.gap-3(
-              :list="getWbsTasksByStatus(status)"
-              group="tasks"
-              item-key="wbsId"
-              @change="(evt) => onWbsDragChange(evt, status)"
+              :list="getConductTasksByStatus(status)"
+              group="conduct"
+              item-key="id"
+              @change="(evt) => onConductDragChange(evt, status)"
               class="min-h-[100px]"
             )
               template(#item="{element}")
                 .glass-panel.rounded-xl.p-4.cursor-grab.active_cursor-grabbing.hover_border-redAccent.transition-colors(class="hover:border-redAccent")
                   .flex.justify-between.items-start.mb-2
-                    span.text-metadata ID: {{ element.wbsId }}
-                    span.bg-redAccent.text-white.px-2.rounded(v-if="element.isCritical" class="text-[9px] font-bold") CRITICAL
+                    span.text-metadata ID: {{ element.id }}
+                    span.px-2.rounded.font-bold.text-white(class="text-[9px]" :class="getPriorityClass(element.priority)") {{ element.priority }}
                   h4.font-bold.text-sm.mb-2 {{ element.title }}
                   .flex.justify-between.items-end
-                    .flex.flex-wrap.gap-1
-                      span.bg-white_10.px-1.rounded(v-for="opId in element.assignees" :key="opId" class="text-[9px] bg-white/10") {{ getOperativeName(opId).split(' ')[0] }}
-                    span.text-metadata {{ element.duration }}d
+                    .flex.flex-col.gap-1
+                      .flex.items-center.gap-1
+                        ClockIcon.text-white_40(:size="10")
+                        span.text-metadata(class="text-[9px]") {{ element.dueDate }}
+                      .flex.flex-wrap.gap-1
+                        span.bg-white_10.px-1.rounded(v-for="opId in element.assignees" :key="opId" class="text-[9px] bg-white/10") {{ getOperativeName(opId).split(' ')[0] }}
+                    button.bg-white_5.px-2.py-1.rounded.text-metadata.hover_text-white(class="text-[8px] bg-white/5" @click="editingTask = element") DETAILS
 
           //- ISSUES SECTION
           .flex.flex-col.gap-2
@@ -118,8 +122,14 @@
                     span.px-2.py-0_5.rounded.font-bold.text-white(class="text-[9px]" :class="getPriorityClass(element.priority)") {{ element.priority }}
                   h4.font-bold.text-sm.text-redAccent {{ element.title }}
                   .mt-2.flex.justify-between.items-end
-                    span.text-metadata(class="text-[9px]") {{ element.assignees?.length ? getOperativeName(element.assignees[0]) : 'UNASSIGNED' }}
-                    AlertTriangleIcon.text-redAccent(:size="14")
+                    .flex.flex-col.gap-1
+                      .flex.items-center.gap-1
+                        ClockIcon.text-white_40(:size="10")
+                        span.text-metadata(class="text-[9px]") {{ element.dueDate }}
+                      span.text-metadata(class="text-[9px]") {{ element.assignees?.length ? getOperativeName(element.assignees[0]) : 'UNASSIGNED' }}
+                    .flex.items-center.gap-2
+                      button.bg-redAccent_10.px-2.py-1.rounded.text-redAccent.hover_bg-redAccent.hover_text-white(class="text-[8px] bg-redAccent/10" @click="editingIssue = element") DETAILS
+                      AlertTriangleIcon.text-redAccent(:size="14")
 
     //- Work Breakdown Structure (List/Gantt Core)
     .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'list'")
@@ -215,39 +225,45 @@
               option High
           button.bg-redAccent.text-white.px-4.py-2.rounded.font-bold.text-xs(@click="addConductTask") ADD TASK
 
-      .flex-1.overflow-auto.p-4
-        .grid.grid-cols-4.gap-4
-          .flex.flex-col.gap-3(v-for="status in boardStatuses" :key="status")
-            .flex.items-center.justify-between.px-2
-              span.text-metadata {{ status.toUpperCase() }}
-              span.text-xs.text-white_40 {{ getConductTasksByStatus(status).length }}
-            
-            draggable.flex-1.flex.flex-col.gap-3(
-              class="min-h-[300px]"
-              :list="getConductTasksByStatus(status)"
-              group="conduct"
-              item-key="id"
-              @change="(evt) => onConductDragChange(evt, status)"
-            )
-              template(#item="{element}")
-                .glass-panel.rounded-xl.p-4.flex.flex-col.gap-3.group.hover_border-redAccent.transition-colors(class="hover:border-redAccent")
-                  .flex.justify-between.items-start
-                    span.text-metadata(class="text-[8px]") ID: {{ element.id }}
-                    button.opacity-0.group-hover_opacity-100.text-redAccent(@click="deleteConductTask(element.id)") ✕
-                  h4.font-bold.text-sm {{ element.title }}
+      .flex-1.overflow-auto.p-6
+        table.w-full.border-collapse.text-left
+          thead: tr
+            th.p-3.border-b.border-white_10.text-metadata ID
+            th.p-3.border-b.border-white_10.text-metadata TITLE
+            th.p-3.border-b.border-white_10.text-metadata PRIORITY
+            th.p-3.border-b.border-white_10.text-metadata STATUS
+            th.p-3.border-b.border-white_10.text-metadata DEADLINE
+            th.p-3.border-b.border-white_10.text-metadata ACTIONS
+          tbody
+            tr.border-b.border-white_5(v-for="task in conductTasks" :key="task.id" class="border-white/5 hover:bg-white/[0.02]")
+              td.p-3.text-xs.font-mono {{ task.id }}
+              td.p-3
+                .flex.flex-col.gap-1
+                  .flex.items-center.gap-2
+                    span.font-bold.text-sm {{ task.title }}
+                    .group.relative(v-if="task.description")
+                      InfoIcon.text-redAccent.opacity-40(class="hover:opacity-100 cursor-help" :size="14")
+                      .absolute.left-full.top-0.ml-2.w-80.p-4.bg-obsidian.border.border-white_10.rounded-xl.shadow-2xl.opacity-0.pointer-events-none.transition-all(
+                        class="z-[60] group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 backdrop-blur-xl bg-obsidian/90"
+                      )
+                        p.text-metadata.mb-2.text-redAccent DESCRIPTION
+                        p.text-xs.font-normal.text-white_80(class="text-white/80 leading-relaxed") {{ task.description }}
                   
-                  //- Deadlines & Assignees
-                  .flex.flex-col.gap-2
-                    .flex.items-center.gap-2
-                      ClockIcon.text-white_40(:size="12")
-                      input.bg-transparent.outline-none.text-metadata(type="date" v-model="element.dueDate" class="[color-scheme:dark] text-[10px]")
-                    .flex.flex-wrap.gap-1
-                      span.bg-redAccent.text-white.rounded.px-1.flex.items-center.gap-1(v-for="opId in element.assignees" :key="opId" class="text-[8px]") 
-                        | {{ getOperativeName(opId).split(' ')[0] }}
-                        span.text-white_40.hover_text-white(@click.stop="toggleConductAssignee(element, opId)") ✕
-                  
-                  //- Expanded Detail Button
-                  button.w-full.py-1.bg-white_5.rounded.text-metadata.hover_text-white(class="bg-white/5 text-[9px]" @click="editingTask = element") DETAILS & SUBTASKS
+                  //- Inline Subtasks
+                  .flex.flex-col.gap-1.mt-1(v-if="task.subtasks && task.subtasks.length")
+                    .flex.items-center.gap-2(v-for="(st, sIdx) in task.subtasks" :key="sIdx" :style="{ paddingLeft: (st.level || 0) * 16 + 'px' }")
+                      span.text-white_20(class="text-[10px]") ↳
+                      input(type="checkbox" v-model="st.done" class="scale-75 cursor-pointer")
+                      span.text-white_40(class="text-[10px]" :class="{ 'line-through text-white_20': st.done }") {{ st.text }}
+              td.p-3: span.px-2.py-1.rounded.font-bold.text-white(class="text-[10px]" :class="getPriorityClass(task.priority)") {{ task.priority }}
+              td.p-3
+                select.bg-transparent.outline-none.text-sm(v-model="task.status")
+                  option(v-for="status in boardStatuses" :key="status" :value="status") {{ status }}
+              td.p-3
+                input.bg-transparent.outline-none.text-xs(type="date" v-model="task.dueDate" class="[color-scheme:dark]")
+              td.p-3.flex.gap-4
+                button.text-metadata.hover_text-white(@click="editingTask = task") DETAILS
+                button.text-redAccent.opacity-50.hover_opacity-100(@click="deleteConductTask(task.id)") ✕
 
     //- Integrated Issues Mode
     .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'issues'")
@@ -275,11 +291,21 @@
             th.p-3.border-b.border-white_10.text-metadata TITLE
             th.p-3.border-b.border-white_10.text-metadata PRIORITY
             th.p-3.border-b.border-white_10.text-metadata STATUS
+            th.p-3.border-b.border-white_10.text-metadata DEADLINE
             th.p-3.border-b.border-white_10.text-metadata ACTIONS
           tbody
             tr.border-b.border-white_5(v-for="issue in activeProject.issues" :key="issue.id" class="border-white/5 hover:bg-white/[0.02]")
               td.p-3.text-xs.font-mono {{ issue.id }}
-              td.p-3.font-bold.text-sm {{ issue.title }}
+              td.p-3
+                .flex.items-center.gap-2
+                  span.font-bold.text-sm {{ issue.title }}
+                  .group.relative(v-if="issue.description")
+                    InfoIcon.text-white_20(class="hover:text-redAccent cursor-help" :size="14")
+                    .absolute.left-full.top-0.ml-2.w-80.p-4.bg-obsidian.border.border-white_10.rounded-xl.shadow-2xl.opacity-0.pointer-events-none.transition-all(
+                      class="z-[60] group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 backdrop-blur-xl bg-obsidian/90"
+                    )
+                      p.text-metadata.mb-2.text-redAccent DESCRIPTION / ROOT CAUSE
+                      p.text-xs.font-normal.text-white_80(class="text-white/80 leading-relaxed") {{ issue.description }}
               td.p-3: span.px-2.py-1.rounded.font-bold.text-white(class="text-[10px]" :class="getPriorityClass(issue.priority)") {{ issue.priority }}
               td.p-3
                 select.bg-transparent.outline-none.text-sm(v-model="issue.status")
@@ -287,6 +313,8 @@
                   option In Progress
                   option Resolved
                   option Blocked
+              td.p-3
+                input.bg-transparent.outline-none.text-xs(type="date" v-model="issue.dueDate" class="[color-scheme:dark]")
               td.p-3.flex.gap-4
                 button.text-metadata.hover_text-white(@click="editingIssue = issue") DETAILS
                 button.text-redAccent.opacity-50.hover_opacity-100(@click="deleteIssue(issue.id)") ✕
@@ -352,7 +380,7 @@
 
   //- Modal for Task Detail (Edit description, subtasks, assignees)
   .fixed.inset-0.z-50.flex.items-center.justify-center.bg-black_80.backdrop-blur-md(v-if="editingTask" class="bg-black/80")
-    .glass-card.rounded-2xl.p-8.w-full.max-w-2xl.flex.flex-col.gap-6.border.border-white_10(class="border-white/10")
+    .glass-card.rounded-2xl.p-10.w-full.max-w-5xl.flex.flex-col.gap-8.border.border-white_10(class="border-white/10")
       .flex.justify-between.items-start
         .flex.flex-col
           h2.text-2xl.text-header EDIT TASK
@@ -366,7 +394,10 @@
             input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(v-model="editingTask.title" class="bg-white/5 border-white/10 focus:border-redAccent")
           .flex.flex-col.gap-1
             label.text-metadata DESCRIPTION
-            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingTask.description" class="bg-white/5 border-white/10 focus:border-redAccent")
+            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingTask.description" class="bg-white/5 border-white/10 focus:border-redAccent" placeholder="Enter task details...")
+          .flex.flex-col.gap-1
+            label.text-metadata DEADLINE
+            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(type="date" v-model="editingTask.dueDate" class="bg-white/5 border-white/10 focus:border-redAccent [color-scheme:dark]")
           .flex.flex-col.gap-1
             label.text-metadata ASSIGNEES
             .flex.flex-wrap.gap-2
@@ -381,17 +412,23 @@
                 .w-2.h-2.rounded-full(:class="getResourceLoad(op.id) > 90 ? 'bg-redAccent' : 'bg-green-500'")
 
         .flex.flex-col.gap-4
-          label.text-metadata SUBTASKS / ACTION ITEMS
-          .flex.flex-col.gap-2.max-h-64.overflow-y-auto.pr-2
-            .flex.items-center.gap-3(v-for="(st, idx) in editingTask.subtasks" :key="idx")
+          label.text-metadata SUBTASKS / ACTION ITEMS (HIERARCHY)
+          .flex.flex-col.gap-2.max-h-96.overflow-y-auto.pr-2
+            .flex.items-center.gap-3(v-for="(st, idx) in editingTask.subtasks" :key="idx" :style="{ paddingLeft: (st.level || 0) * 24 + 'px' }")
+              ChevronRightIcon.text-white_20(v-if="st.level > 0" :size="12")
               input(type="checkbox" v-model="st.done")
               input.bg-transparent.outline-none.text-sm.flex-1.border-b.border-white_10(v-model="st.text" placeholder="Subtask...")
-              button.text-redAccent.opacity-50(@click="editingTask.subtasks.splice(idx, 1)") ✕
-          button.w-full.py-2.bg-white_5.rounded.text-metadata.hover_text-white(class="bg-white/5" @click="editingTask.subtasks.push({ text: '', done: false })") + ADD SUBTASK
+              .flex.gap-1
+                button.p-1.hover_bg-white_10.rounded(@click="st.level = Math.max(0, (st.level || 0) - 1)" title="Outdent") 
+                  span(class="text-[10px]") ←
+                button.p-1.hover_bg-white_10.rounded(@click="st.level = (st.level || 0) + 1" title="Indent")
+                  span(class="text-[10px]") →
+                button.text-redAccent.opacity-50.hover_opacity-100(@click="editingTask.subtasks.splice(idx, 1)") ✕
+          button.w-full.py-2.bg-white_5.rounded.text-metadata.hover_text-white(class="bg-white/5" @click="editingTask.subtasks.push({ text: '', done: false, level: 0 })") + ADD SUBTASK
 
   //- Modal for Issue Detail
   .fixed.inset-0.z-50.flex.items-center.justify-center.bg-black_80.backdrop-blur-md(v-if="editingIssue" class="bg-black/80")
-    .glass-card.rounded-2xl.p-8.w-full.max-w-2xl.flex.flex-col.gap-6.border.border-white_10(class="border-white/10")
+    .glass-card.rounded-2xl.p-10.w-full.max-w-5xl.flex.flex-col.gap-8.border.border-white_10(class="border-white/10")
       .flex.justify-between.items-start
         .flex.flex-col
           h2.text-2xl.text-header RESOLVE ISSUE
@@ -401,8 +438,11 @@
       .grid.grid-cols-2.gap-8
         .flex.flex-col.gap-4
           .flex.flex-col.gap-1
+            label.text-metadata TITLE
+            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(v-model="editingIssue.title" class="bg-white/5 border-white/10 focus:border-redAccent")
+          .flex.flex-col.gap-1
             label.text-metadata DESCRIPTION / ROOT CAUSE
-            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingIssue.description" class="bg-white/5 border-white/10 focus:border-redAccent")
+            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingIssue.description" class="bg-white/5 border-white/10 focus:border-redAccent" placeholder="Explain the issue...")
           .flex.flex-col.gap-1
             label.text-metadata TARGET RESOLUTION
             input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(type="date" v-model="editingIssue.dueDate" class="bg-white/5 border-white/10 focus:border-redAccent [color-scheme:dark]")
@@ -435,7 +475,7 @@ import { appState, getProjectProgress, calculateSchedule, getResourceHeatmap } f
 import { format, addDays, parseISO, differenceInDays } from "date-fns";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import { Clock as ClockIcon, AlertTriangle as AlertTriangleIcon } from "lucide-vue-next";
+import { Clock as ClockIcon, AlertTriangle as AlertTriangleIcon, Info as InfoIcon, ChevronRight as ChevronRightIcon } from "lucide-vue-next";
 
 const wbsColumns = reactive([
   { id: 'id', label: 'WBS ID', width: 80 },
