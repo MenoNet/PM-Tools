@@ -4,13 +4,13 @@
 
 @layer base {
   body {
-    @apply bg-obsidian text-white m-0 p-0 font-sans;
+    @apply bg-obsidian text-white m-0 p-0 font-sans transition-colors duration-300;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/[0.01] backdrop-blur-3xl border border-white/[0.05] shadow-2xl;
+    @apply bg-white/[0.01] backdrop-blur-3xl border border-white/[0.05] shadow-2xl rounded-2xl;
   }
   
   .glass-panel {
@@ -22,10 +22,10 @@
   }
 
   .text-header {
-    @apply font-black italic tracking-tighter;
+    @apply font-black tracking-tighter;
   }
 
-  /* Custom scrollbar for cyberpunk look */
+  /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -38,6 +38,6 @@
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: rgba(224, 30, 46, 0.5); /* redAccent */
+    background: #E01E2E; /* redAccent */
   }
 }
