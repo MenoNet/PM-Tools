@@ -1,28 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --bg-primary: #FAF9F6;
+  --bg-secondary: #FFFFFF;
+  --text-primary: #191819;
+  --text-secondary: #5F6368;
+  --border-primary: rgba(0, 0, 0, 0.05);
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(255, 255, 255, 0.5);
+}
+
+.dark {
+  --bg-primary: #161920; /* Midnight */
+  --bg-secondary: #191819; /* Blackboard */
+  --text-primary: #FFFFFF;
+  --text-secondary: rgba(255, 255, 255, 0.6);
+  --border-primary: rgba(255, 255, 255, 0.05);
+  --glass-bg: rgba(25, 24, 25, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.05);
+}
+
 @layer base {
   body {
-    @apply bg-obsidian text-white m-0 p-0 font-sans transition-colors duration-300;
+    background-color: theme('colors.appBg');
+    color: theme('colors.appText');
+    @apply m-0 p-0 font-sans transition-colors duration-300 antialiased;
   }
 }
 
 @layer utilities {
   .glass-card {
-    @apply bg-white/[0.01] backdrop-blur-3xl border border-white/[0.05] shadow-2xl rounded-2xl;
+    background-color: theme('colors.appBgSoft');
+    border: 1px solid theme('colors.appBorder');
+    @apply backdrop-blur-3xl shadow-premium rounded-2xl;
   }
 
   .glass-panel {
-    @apply bg-white/[0.02] backdrop-blur-xl border border-white/[0.05];
+    background-color: theme('colors.appBgSoft' / 0.8);
+    border: 1px solid theme('colors.appBorder');
+    @apply backdrop-blur-xl;
   }
 
   .text-metadata {
-    @apply text-[9px] uppercase tracking-[0.2em] text-white/50;
+    color: theme('colors.appTextMuted');
+    @apply text-[10px] font-bold uppercase tracking-[0.1em];
   }
 
   .text-header {
-    @apply font-black tracking-tighter;
+    @apply font-bold tracking-tight;
+  }
+
+  .brand-gradient {
+    background: linear-gradient(135deg, #7F24DD 0%, #FB006D 100%);
+  }
+
+  .btn-primary {
+    @apply bg-purple-brand text-white px-4 py-2 rounded-xl font-semibold shadow-lg hover:shadow-purple-brand/20 transition-all active:scale-95;
   }
 
   /* Custom scrollbar */
@@ -34,10 +71,10 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 3px;
+    background-color: theme('colors.appTextMuted' / 0.2);
+    @apply rounded-full;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #e01e2e; /* redAccent */
+    background-color: theme('colors.purple-brand' / 0.5);
   }
 }

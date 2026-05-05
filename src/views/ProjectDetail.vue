@@ -1,28 +1,24 @@
 <template lang="pug">
 .h-full.flex.flex-col.gap-6
   //- Project Header & Tabs
-  .glass-card.rounded-2xl.p-6.flex.flex-col.gap-6.flex-shrink-0(v-if="activeProject")
+  .flex.flex-col.gap-6.flex-shrink-0(v-if="activeProject")
     .flex.justify-between.items-start
-      .flex.flex-col.gap-4.w-full
-        .flex.items-center.gap-6
-          .flex.flex-col.gap-1
-            label.text-metadata PROJECT SELECTOR
-            select.bg-white_10.text-white.text-2xl.font-black.rounded-xl.px-4.py-2.outline-none.border.border-redAccent_20.cursor-pointer.hover_border-redAccent.transition-all(
-              v-model="appState.activeProjectId"
-              class="bg-white/10 border-redAccent/20"
-            )
-              option.text-obsidian(v-for="p in appState.projects" :key="p.id" :value="p.id") {{ p.name }}
-          
-          .h-12.w-px.bg-white_10(class="bg-white/10")
-          
-          .flex.flex-col.gap-1
-            span.text-metadata STATUS
-            span.px-3.py-1.rounded.text-metadata.bg-redAccent_20.text-redAccent.w-fit(class="bg-redAccent/20") {{ activeProject.status }}
-            
-        p.text-white_60(class="text-white/60") {{ activeProject.description }}
+      .flex.items-center.gap-6
+        .flex.flex-col.gap-1
+          label(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest Project
+          select.bg-appBgSoft.text-appText.text-xl.font-bold.rounded-xl.px-3.py-1.outline-none.border.border-appBorder.cursor-pointer.hover_border-purple-brand.transition-all(
+            v-model="appState.activeProjectId"
+          )
+            option(v-for="p in appState.projects" :key="p.id" :value="p.id") {{ p.name }}
+        
+        .h-10.w-px.bg-appBorder
+        
+        .flex.flex-col.gap-1
+          span(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest Status
+          span(class="text-[10px] px-3 py-0.5").rounded-lg.font-bold.bg-purple-brand/10.text-purple-brand.w-fit {{ activeProject.status }}
       
-      //- Rearrangeable Project Menu (Tabs)
-      draggable.flex.bg-white_5.p-1.rounded-xl(
+      //- Tab Navigation
+      draggable.flex.bg-appBgSoft.p-1.rounded-xl.border.border-appBorder(
         v-if="localModes.length"
         v-model="localModes"
         :key="appState.activeProjectId"
@@ -30,441 +26,276 @@
         tag="nav"
         :animation="200"
         ghost-class="opacity-50"
-        class="bg-white/5"
       )
         template(#item="{ element }")
-          button.px-6.py-2.rounded-lg.text-sm.font-bold.transition-all.cursor-move.select-none(
+          button.px-4.py-1.rounded-lg.text-xs.font-semibold.transition-all.cursor-move.select-none(
             @click="currentMode = element.id"
-            :class="currentMode === element.id ? 'bg-redAccent text-white shadow-lg' : 'text-white/50 hover:text-white hover:bg-white/5'"
+            :class="currentMode === element.id ? 'bg-appBg text-appText shadow-sm' : 'text-appTextMuted hover:text-appText'"
           ) {{ element.label }}
 
   //- Dynamic Sub-mode Content
-  .flex-1.min-h-0.overflow-hidden(v-if="activeProject")
+  .flex-1.min-h-0(v-if="activeProject")
     
     //- Overview Mode
     .h-full.flex.flex-col.gap-6.overflow-y-auto(v-if="currentMode === 'overview'")
       .grid.grid-cols-2.gap-6
-        .glass-panel.rounded-xl.p-6.flex.flex-col.gap-4
-          h3.text-xl.text-header STRATEGIC OBJECTIVES
-          p.text-white_80(class="text-white/80") {{ activeProject.description }}
+        .bg-appBgSoft.rounded-3xl.p-6.flex.flex-col.gap-4.border.border-appBorder
+          h3.text-lg.font-bold STRATEGIC OBJECTIVES
+          p.text-appTextMuted.text-sm {{ activeProject.description }}
           .mt-2
-            span.text-metadata PROGRESS
-            .w-full.bg-white_5.h-2.rounded-full.mt-2(class="bg-white/5")
-              .bg-redAccent.h-full.rounded-full.transition-all.duration-1000(:style="{ width: progress + '%' }")
+            span(class="text-[10px]").font-bold.text-appTextMuted PROGRESS
+            .w-full.bg-appBg.h-2.rounded-full.mt-2
+              .bg-purple-brand.h-full.rounded-full.transition-all.duration-1000(:style="{ width: progress + '%' }")
           
           .mt-6.grid.grid-cols-2.gap-4
-            .p-3.bg-white_5.rounded-lg(class="bg-white/5")
-              span.text-metadata START DATE
-              p.font-bold {{ activeProject.startDate }}
-            .p-3.bg-white_5.rounded-lg(class="bg-white/5")
-              span.text-metadata TARGET END
-              p.font-bold {{ activeProject.endDate }}
-      .glass-panel.rounded-xl.p-6
-        h3.text-xl.text-header SYSTEM LOGS
+            .p-3.bg-appBg.rounded-2xl.border.border-appBorder
+              span(class="text-[10px]").font-bold.text-appTextMuted START DATE
+              p.text-sm.font-bold {{ activeProject.startDate }}
+            .p-3.bg-appBg.rounded-2xl.border.border-appBorder
+              span(class="text-[10px]").font-bold.text-appTextMuted TARGET END
+              p.text-sm.font-bold {{ activeProject.endDate }}
+      
+      .bg-appBgSoft.rounded-3xl.p-6.border.border-appBorder
+        h3.text-lg.font-bold SYSTEM LOGS
         .mt-4.flex.flex-col.gap-3
           .flex.gap-3(v-for="log in activeProject.logs" :key="log.time")
-            span.text-metadata.text-redAccent {{ log.time }}
-            span.text-sm.text-white_80(class="text-white/80") {{ log.msg }}
+            span.text-xs.font-bold.text-purple-brand {{ log.time }}
+            span.text-xs.text-appTextMuted {{ log.msg }}
 
-    //- Kanban Board Mode (Integrated Tasks & Issues)
+    //- Kanban Board Mode
     .h-full.flex.gap-6.overflow-x-auto.pb-4(v-else-if="currentMode === 'board'")
-      .flex-1.flex.flex-col.gap-6(v-for="status in boardStatuses" :key="status" class="min-w-[340px]")
-        .flex.items-center.justify-between.px-2
-          span.text-metadata.tracking-widest {{ status.toUpperCase() }}
-          .flex.gap-2
-            span.bg-white_10.px-2.rounded(class="text-[10px] bg-white/10 text-white/60") T:{{ getConductTasksByStatus(status).length }}
-            span.bg-redAccent_20.px-2.rounded(class="text-[10px] bg-redAccent/20 text-redAccent") I:{{ getIssuesByStatus(status).length }}
+      .flex-1.flex.flex-col.gap-6(v-for="status in boardStatuses" :key="status" class="min-w-[320px]")
+        .flex.items-center.gap-2
+          span.w-2.h-2.rounded-full(:class="getStatusColorClass(status)")
+          span.text-sm.font-bold.text-appText {{ status }}
+          span(class="text-[10px]").font-bold.text-appTextMuted ({{ getConductTasksByStatus(status).length + getIssuesByStatus(status).length }})
         
         .flex-1.flex.flex-col.gap-4.overflow-y-auto.pr-2
-          //- CONDUCT TASKS SECTION
-          .flex.flex-col.gap-2
-            .flex.items-center.gap-2
-              span.text-white_40(class="text-[10px]") TASKS
-              .flex-1.h-px.bg-white_10(class="bg-white/10")
-            draggable.flex.flex-col.gap-3(
-              :list="getConductTasksByStatus(status)"
-              group="conduct"
-              item-key="id"
-              @change="(evt) => onConductDragChange(evt, status)"
-              class="min-h-[100px]"
-            )
-              template(#item="{element}")
-                .glass-panel.rounded-xl.p-4.cursor-grab.active_cursor-grabbing.hover_border-redAccent.transition-colors(class="hover:border-redAccent")
-                  .flex.justify-between.items-start.mb-2
-                    span.text-metadata ID: {{ element.id }}
-                    span.px-2.rounded.font-bold.text-white(class="text-[9px]" :class="getPriorityClass(element.priority)") {{ element.priority }}
-                  h4.font-bold.text-sm.mb-2 {{ element.title }}
-                  .flex.justify-between.items-end
-                    .flex.flex-col.gap-1
-                      .flex.items-center.gap-1
-                        ClockIcon.text-white_40(:size="10")
-                        span.text-metadata(class="text-[9px]") {{ element.dueDate }}
-                      .flex.flex-wrap.gap-1
-                        span.bg-white_10.px-1.rounded(v-for="opId in element.assignees" :key="opId" class="text-[9px] bg-white/10") {{ getOperativeName(opId).split(' ')[0] }}
-                    button.bg-white_5.px-2.py-1.rounded.text-metadata.hover_text-white(class="text-[8px] bg-white/5" @click="editingTask = element") DETAILS
+          draggable.flex.flex-col.gap-4(
+            :list="getConductTasksByStatus(status)"
+            group="tasks"
+            item-key="id"
+            @change="(evt) => onConductDragChange(evt, status)"
+            class="min-h-[100px]"
+          )
+            template(#item="{element}")
+              .bg-appBgSoft.rounded-2xl.p-4.border.border-appBorder.shadow-sm.hover_border-purple-brand.transition-all.cursor-grab.active_cursor-grabbing.group
+                //- Card Image/Gradient Placeholder
+                .w-full.h-24.rounded-xl.mb-3.brand-gradient.opacity-20.group-hover_opacity-40.transition-all(v-if="element.id === 'ct1' || Math.random() > 0.7")
+                
+                .flex.justify-between.items-start.mb-2
+                  span(class="text-[9px]").font-bold.text-appTextMuted {{ element.id }}
+                  span(class="text-[9px] px-2 py-0.5").rounded-lg.font-bold.text-white(:class="getPriorityClass(element.priority)") {{ element.priority }}
+                
+                h4.text-sm.font-bold.text-appText.mb-3 {{ element.title }}
+                
+                //- Tags
+                .flex.flex-wrap.gap-1.mb-4
+                  span(class="text-[9px] px-2 py-0.5").rounded-lg.font-bold.bg-purple-brand/10.text-purple-brand Brand
+                  span(class="text-[9px] px-2 py-0.5").rounded-lg.font-bold.bg-tuscany/10.text-tuscany Marketing
+                
+                //- Footer
+                .flex.justify-between.items-center
+                  .flex.items-center.gap-1
+                    ClockIcon.text-appTextMuted(:size="10")
+                    span(class="text-[9px]").font-bold.text-appTextMuted {{ element.dueDate }}
+                  
+                  .flex.-space-x-2
+                    .w-5.h-5.rounded-full.bg-purple-brand.border-2.border-bg-secondary.flex.items-center.justify-center(class="text-[8px]").text-white.font-bold(v-for="opId in element.assignees" :key="opId") {{ getOperativeName(opId)[0] }}
+                
+                button.w-full.mt-3.py-1.rounded-lg(class="text-[9px]").font-bold.text-appTextMuted.bg-appBg.hover_text-purple-brand.transition-all(@click="editingTask = element") VIEW DETAILS
 
-          //- ISSUES SECTION
-          .flex.flex-col.gap-2
-            .flex.items-center.gap-2
-              span.text-redAccent_60(class="text-[10px] text-redAccent/60") ISSUES
-              .flex-1.h-px.bg-redAccent_20(class="bg-redAccent/20")
-            draggable.flex.flex-col.gap-3(
-              :list="getIssuesByStatus(status)"
-              group="issues"
-              item-key="id"
-              @change="(evt) => onIssueDragChange(evt, status)"
-              class="min-h-[100px]"
-            )
-              template(#item="{element}")
-                .p-4.bg-redAccent_5.border.border-redAccent_10.rounded-xl.cursor-grab.active_cursor-grabbing.hover_border-redAccent.transition-colors(class="bg-redAccent/5 border-redAccent/10 hover:border-redAccent")
-                  .flex.justify-between.items-start.mb-2
-                    span.text-metadata(class="text-redAccent/60") {{ element.id }}
-                    span.px-2.py-0_5.rounded.font-bold.text-white(class="text-[9px]" :class="getPriorityClass(element.priority)") {{ element.priority }}
-                  h4.font-bold.text-sm.text-redAccent {{ element.title }}
-                  .mt-2.flex.justify-between.items-end
-                    .flex.flex-col.gap-1
-                      .flex.items-center.gap-1
-                        ClockIcon.text-white_40(:size="10")
-                        span.text-metadata(class="text-[9px]") {{ element.dueDate }}
-                      span.text-metadata(class="text-[9px]") {{ element.assignees?.length ? getOperativeName(element.assignees[0]) : 'UNASSIGNED' }}
-                    .flex.items-center.gap-2
-                      button.bg-redAccent_10.px-2.py-1.rounded.text-redAccent.hover_bg-redAccent.hover_text-white(class="text-[8px] bg-redAccent/10" @click="editingIssue = element") DETAILS
-                      AlertTriangleIcon.text-redAccent(:size="14")
+          //- Issues in Kanban (as separate styling)
+          draggable.flex.flex-col.gap-4(
+            :list="getIssuesByStatus(status)"
+            group="tasks"
+            item-key="id"
+            @change="(evt) => onIssueDragChange(evt, status)"
+          )
+            template(#item="{element}")
+              .bg-appBgSoft.rounded-2xl.p-4.shadow-sm.hover_border-raspberry.transition-all.cursor-grab.active_cursor-grabbing(class="border border-raspberry/20")
+                .flex.justify-between.items-start.mb-2
+                  span(class="text-[9px] text-raspberry/60").font-bold {{ element.id }}
+                  span(class="text-[9px] px-2 py-0.5").rounded-lg.font-bold.text-white.bg-raspberry {{ element.priority }}
+                
+                h4.text-sm.font-bold.text-raspberry.mb-2 {{ element.title }}
+                .flex.items-center.gap-1
+                  AlertTriangleIcon.text-raspberry(:size="12")
+                  span(class="text-[9px]").font-bold.text-appTextMuted ISSUE RECORDED
+                
+                button.w-full.mt-3.py-1.rounded-lg(class="text-[9px]").font-bold.text-appTextMuted.bg-appBg.hover_text-raspberry.transition-all(@click="editingIssue = element") RESOLVE
 
-    //- Work Breakdown Structure (List/Gantt Core)
-    .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'list'")
-      .flex.justify-between.p-4.border-b.border-white_5(class="border-white/5")
-        h3.text-xl.text-header WORK BREAKDOWN STRUCTURE
-        .flex.gap-4
-          button.bg-white_10.text-white.px-4.py-1.rounded.text-xs.font-bold(class="bg-white/10 hover:bg-white/20" @click="addParentTask") + ADD PARENT TASK
-          button.bg-redAccent.text-white.px-4.py-1.rounded.text-xs.font-bold(@click="addSubtask") + ADD SUBTASK
+    //- Work Breakdown Structure (Grid Mode)
+    .h-full.bg-appBgSoft.rounded-3xl.border.border-appBorder.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'list'")
+      .flex.justify-between.items-center.p-4.border-b.border-appBorder
+        .flex.items-center.gap-4
+          h3.text-sm.font-bold.text-appText PROJECT TASKS GRID
+          .flex.gap-2
+            button.px-3.py-1.rounded-lg(class="text-[10px]").font-bold.bg-appBg.text-appTextMuted.hover_text-purple-brand.border.border-appBorder(@click="addParentTask") + Parent
+            button.px-3.py-1.rounded-lg(class="text-[10px]").font-bold.bg-purple-brand.text-white(@click="addSubtask") + Subtask
       
       .flex-1.overflow-auto
-        table.w-full.text-left.border-collapse.whitespace-nowrap(class="table-fixed")
-          thead(class="bg-[#d9ead3] text-black sticky top-0 z-20")
+        table.w-full.text-left.border-collapse.whitespace-nowrap.table-fixed
+          thead.bg-appBg.text-appTextMuted.sticky.top-0.z-20
             tr
-              th.p-2.text-xs.font-bold(v-for="col in wbsColumns" :key="col.id" :style="{ width: col.width + 'px' }")
+              th.p-3(class="text-[10px]").font-bold.uppercase.tracking-widest(v-for="col in wbsColumns" :key="col.id" :style="{ width: col.width + 'px' }")
                 .flex.items-center.justify-between
                   span {{ col.label }}
-                  .w-1.h-4.cursor-col-resize.bg-black_10(@mousedown="startResize(col, $event)")
+                  .w-px.h-4.bg-appBorder.cursor-col-resize(@mousedown="startResize(col, $event)")
           tbody
-            tr(v-for="task in projectTasksSorted" :key="task.wbsId" :class="task.isParent ? 'bg-white_5 font-bold' : 'hover:bg-white_2'" class="border-b border-white/5")
-              td.p-2.overflow-hidden.text-xs {{ task.wbsId }}
-              td.p-2.overflow-hidden
+            tr(v-for="task in projectTasksSorted" :key="task.wbsId" :class="task.isParent ? 'bg-appBg font-bold' : 'hover:bg-purple-brand/5'" class="border-b border-appBorder")
+              td.p-3(class="text-[10px]").text-appTextMuted {{ task.wbsId }}
+              td.p-3.overflow-hidden
                 .flex.items-center(:style="{ paddingLeft: (task.wbsId.split('.').length - 1) * 20 + 'px' }")
-                  span.mr-2(v-if="!task.isParent") ↳
-                  input.bg-transparent.outline-none.w-full.text-sm.hover_bg-white_5.rounded.px-1(v-model="task.title" @change="onUpdateTasks" class="hover:bg-white/5")
-              td.p-2.overflow-hidden
-                input.bg-transparent.outline-none.w-full.text-sm(v-if="!task.isParent" v-model.number="task.duration" type="number" @change="onUpdateTasks")
-                span.px-1(v-else) {{ task.duration }}
-              td.p-2.overflow-hidden
-                input.bg-transparent.outline-none.w-full.text-sm(v-if="!task.isParent" :value="task.predecessorIds.join(', ')" @input="e => updatePredecessors(task, e.target.value)")
-              td.p-2.overflow-hidden
-                select.bg-transparent.outline-none.w-full.text-xs(v-if="!task.isParent" v-model="task.dependencyType" @change="onUpdateTasks")
+                  span.mr-2.text-appTextMuted(v-if="!task.isParent") ↳
+                  input.bg-transparent.outline-none.w-full.text-xs.font-semibold.text-appText(v-model="task.title" @change="onUpdateTasks")
+              td.p-3
+                input.bg-transparent.outline-none.w-full(class="text-[10px]")(v-if="!task.isParent" v-model.number="task.duration" type="number" @change="onUpdateTasks")
+                span(class="text-[10px]")(v-else) {{ task.duration }}
+              td.p-3
+                input.bg-transparent.outline-none.w-full(class="text-[10px]")(v-if="!task.isParent" :value="task.predecessorIds.join(', ')" @input="e => updatePredecessors(task, e.target.value)")
+              td.p-3
+                select.bg-transparent.outline-none.w-full(class="text-[10px]")(v-if="!task.isParent" v-model="task.dependencyType" @change="onUpdateTasks")
                   option FS
                   option SS
                   option FF
                   option SF
-              td.p-2.overflow-hidden
-                input.bg-transparent.outline-none.w-full.text-xs(v-if="!task.isParent" v-model.number="task.lag" type="number" @change="onUpdateTasks")
-              td.p-2.overflow-hidden.text-xs {{ task.startDay }}
-              td.p-2.overflow-hidden.text-xs {{ task.endDay }}
-              td.p-2.overflow-hidden.text-xs(v-if="!task.isParent" :class="task.isCritical ? 'text-redAccent font-bold' : ''") {{ task.isCritical ? 'Y' : 'N' }}
-              td.p-2.overflow-hidden(v-else)
-              td.p-2.overflow-hidden
-                input.bg-transparent.outline-none.w-full.text-sm(v-if="!task.isParent" v-model.number="task.progress" type="number" @change="onUpdateTasks")
-                span.px-1(v-else) {{ task.progress }}%
+              td.p-3
+                input.bg-transparent.outline-none.w-full(class="text-[10px]")(v-if="!task.isParent" v-model.number="task.lag" type="number" @change="onUpdateTasks")
+              td.p-3(class="text-[10px]") {{ task.startDay }}
+              td.p-3(class="text-[10px]") {{ task.endDay }}
+              td.p-3(class="text-[10px]")(v-if="!task.isParent" :class="task.isCritical ? 'text-raspberry font-bold' : ''") {{ task.isCritical ? 'Y' : 'N' }}
+              td.p-3(v-else)
+              td.p-3
+                input.bg-transparent.outline-none.w-full(class="text-[10px]")(v-if="!task.isParent" v-model.number="task.progress" type="number" @change="onUpdateTasks")
+                span(class="text-[10px]")(v-else) {{ task.progress }}%
               
-              //- Resources Dropdown
-              td.p-2.relative
+              td.p-3.relative
                 .relative.w-full(v-if="!task.isParent")
-                  .bg-white_5.rounded.px-2.py-1.flex.flex-wrap.gap-1.cursor-pointer.border.border-white_10(
-                    class="bg-white/5 border-white/10 hover:border-redAccent min-h-[32px]"
-                    @click="toggleDropdown(task.wbsId)"
-                  )
+                  .bg-appBg.rounded-lg.px-2.py-1.flex.flex-wrap.gap-1.cursor-pointer.border.border-appBorder(class="min-h-[28px]" @click="toggleDropdown(task.wbsId)")
                     template(v-if="task.assignees.length")
-                      span.bg-redAccent.text-white.rounded.px-1.flex.items-center.gap-1(v-for="opId in task.assignees" :key="opId" class="text-[9px]") 
+                      span.bg-purple-brand.text-white.rounded-lg.px-1.flex.items-center.gap-1(class="text-[8px]")(v-for="opId in task.assignees" :key="opId") 
                         | {{ getOperativeName(opId).split(' ')[0] }}
-                        span.text-white_40.hover_text-white(@click.stop="toggleAssignee(task, opId)") ✕
-                    span.text-white_40(v-else class="text-[10px]") Select...
+                        span(class="text-white/60").hover_text-white(@click.stop="toggleAssignee(task, opId)") ✕
+                    span.text-appTextMuted(class="text-[8px]")(v-else) Select...
                   
-                  .absolute.z-50.top-full.left-0.w-48.bg-obsidian.border.border-white_10.rounded.mt-1.shadow-2xl(
-                    v-if="activeDropdown === task.wbsId"
-                    class="border-white/10"
-                  )
-                    .p-1.flex.flex-col.max-h-48.overflow-y-auto
-                      .flex.items-center.gap-2.px-2.py-1.hover_bg-white_5.cursor-pointer.rounded(
+                  .absolute.z-50.top-full.left-0.w-48.bg-appBgSoft.border.border-appBorder.rounded-xl.mt-1.shadow-2xl(v-if="activeDropdown === task.wbsId")
+                    .p-2.flex.flex-col.max-h-48.overflow-y-auto.gap-1
+                      .flex.items-center.gap-2.px-2.py-1.hover_bg-appBg.cursor-pointer.rounded-lg(
                         v-for="op in appState.operatives" 
                         :key="op.id"
                         @click="toggleAssignee(task, op.id)"
-                        class="hover:bg-white/5"
                       )
-                        input(type="checkbox" :checked="task.assignees.includes(op.id)" class="pointer-events-none")
+                        input(type="checkbox" :checked="task.assignees.includes(op.id)")
                         .flex.flex-col
-                          span.text-xs.font-bold {{ op.name }}
-                          span.text-metadata(class="text-[8px]") {{ op.role }}
+                          span(class="text-[10px]").font-bold {{ op.name }}
+                          span(class="text-[8px]").text-appTextMuted {{ op.role }}
               
-              td.p-2.overflow-hidden
-                button.text-redAccent.opacity-50.hover_opacity-100(@click="deleteTask(task.wbsId)") ✕
+              td.p-3
+                button(class="text-raspberry/50").hover_text-raspberry(@click="deleteTask(task.wbsId)") ✕
 
-    //- Task Management (Granular Conduct Items)
-    .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'tasks'")
-      .p-4.border-b.border-white_5.flex.justify-between.items-end(class="border-white/5")
-        .flex.flex-col.gap-2
-          h3.text-xl.text-header TASK MANAGEMENT (CONDUCT)
-          p.text-metadata GRANULAR ACTION ITEMS FOR {{ activeProject.name.toUpperCase() }}
+    //- Task Management (Conduct)
+    .h-full.bg-appBgSoft.rounded-3xl.border.border-appBorder.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'tasks'")
+      .p-6.border-b.border-appBorder.flex.justify-between.items-end
+        .flex.flex-col.gap-1
+          h3.text-lg.font-bold TASK MANAGEMENT
+          p.text-xs.text-appTextMuted Action items for {{ activeProject.name }}
         .flex.gap-3.items-end
           .flex.flex-col.gap-1
-            label.text-metadata TITLE
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-xs.outline-none(v-model="newConductTask.title" placeholder="What to conduct?" class="bg-white/5 border-white/10 focus:border-redAccent w-64")
-          .flex.flex-col.gap-1
-            label.text-metadata PRIORITY
-            select.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-xs.outline-none(v-model="newConductTask.priority" class="bg-white/5 border-white/10 focus:border-redAccent")
-              option Low
-              option Medium
-              option High
-          button.bg-redAccent.text-white.px-4.py-2.rounded.font-bold.text-xs(@click="addConductTask") ADD TASK
+            label(class="text-[10px]").font-bold.text-appTextMuted TITLE
+            input.bg-appBg.border.border-appBorder.rounded-lg.px-3.py-1.text-xs.outline-none.w-64.focus_border-purple-brand(v-model="newConductTask.title" placeholder="What to conduct?")
+          button.btn-primary.text-xs(@click="addConductTask") ADD TASK
 
       .flex-1.overflow-auto.p-6
         table.w-full.border-collapse.text-left
           thead: tr
-            th.p-3.border-b.border-white_10.text-metadata ID
-            th.p-3.border-b.border-white_10.text-metadata TITLE
-            th.p-3.border-b.border-white_10.text-metadata PRIORITY
-            th.p-3.border-b.border-white_10.text-metadata STATUS
-            th.p-3.border-b.border-white_10.text-metadata DEADLINE
-            th.p-3.border-b.border-white_10.text-metadata ACTIONS
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted ID
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted TITLE
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted PRIORITY
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted STATUS
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted DEADLINE
+            th.p-3.border-b.border-appBorder(class="text-[10px]").font-bold.text-appTextMuted ACTIONS
           tbody
-            tr.border-b.border-white_5(v-for="task in conductTasks" :key="task.id" class="border-white/5 hover:bg-white/[0.02]")
-              td.p-3.text-xs.font-mono {{ task.id }}
-              td.p-3
-                .flex.flex-col.gap-1
-                  .flex.items-center.gap-2
-                    span.font-bold.text-sm {{ task.title }}
-                    .group.relative(v-if="task.description")
-                      InfoIcon.text-redAccent.opacity-40(class="hover:opacity-100 cursor-help" :size="14")
-                      .absolute.left-full.top-0.ml-2.w-80.p-4.bg-obsidian.border.border-white_10.rounded-xl.shadow-2xl.opacity-0.pointer-events-none.transition-all(
-                        class="z-[60] group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 backdrop-blur-xl bg-obsidian/90"
-                      )
-                        p.text-metadata.mb-2.text-redAccent DESCRIPTION
-                        p.text-xs.font-normal.text-white_80(class="text-white/80 leading-relaxed") {{ task.description }}
-                  
-                  //- Inline Subtasks
-                  .flex.flex-col.gap-1.mt-1(v-if="task.subtasks && task.subtasks.length")
-                    .flex.items-center.gap-2(v-for="(st, sIdx) in task.subtasks" :key="sIdx" :style="{ paddingLeft: (st.level || 0) * 16 + 'px' }")
-                      span.text-white_20(class="text-[10px]") ↳
-                      input(type="checkbox" v-model="st.done" class="scale-75 cursor-pointer")
-                      span.text-white_40(class="text-[10px]" :class="{ 'line-through text-white_20': st.done }") {{ st.text }}
-              td.p-3: span.px-2.py-1.rounded.font-bold.text-white(class="text-[10px]" :class="getPriorityClass(task.priority)") {{ task.priority }}
-              td.p-3
-                select.bg-transparent.outline-none.text-sm(v-model="task.status")
-                  option(v-for="status in boardStatuses" :key="status" :value="status") {{ status }}
-              td.p-3
-                input.bg-transparent.outline-none.text-xs(type="date" v-model="task.dueDate" class="[color-scheme:dark]")
-              td.p-3.flex.gap-4
-                button.text-metadata.hover_text-white(@click="editingTask = task") DETAILS
-                button.text-redAccent.opacity-50.hover_opacity-100(@click="deleteConductTask(task.id)") ✕
-
-    //- Integrated Issues Mode
-    .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'issues'")
-      .p-6.border-b.border-white_5.flex.justify-between.items-end(class="border-white/5")
-        .flex.flex-col.gap-2
-          h3.text-xl.text-header PROJECT ISSUES & RISKS
-          p.text-metadata TRACKING IMPEDIMENTS FOR {{ activeProject.name.toUpperCase() }}
-        .flex.gap-3.items-end
-          .flex.flex-col.gap-1
-            label.text-metadata TITLE
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-xs.outline-none(v-model="newIssue.title" placeholder="Description" class="bg-white/5 border-white/10 focus:border-redAccent w-48")
-          .flex.flex-col.gap-1
-            label.text-metadata PRIORITY
-            select.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-xs.outline-none(v-model="newIssue.priority" class="bg-white/5 border-white/10 focus:border-redAccent")
-              option Low
-              option Medium
-              option High
-              option Critical
-          button.bg-redAccent.text-white.px-4.py-2.rounded.font-bold.text-xs(@click="addIssue") LOG ISSUE
-
-      .flex-1.overflow-auto.p-6
-        table.w-full.border-collapse.text-left
-          thead: tr
-            th.p-3.border-b.border-white_10.text-metadata ID
-            th.p-3.border-b.border-white_10.text-metadata TITLE
-            th.p-3.border-b.border-white_10.text-metadata PRIORITY
-            th.p-3.border-b.border-white_10.text-metadata STATUS
-            th.p-3.border-b.border-white_10.text-metadata DEADLINE
-            th.p-3.border-b.border-white_10.text-metadata ACTIONS
-          tbody
-            tr.border-b.border-white_5(v-for="issue in activeProject.issues" :key="issue.id" class="border-white/5 hover:bg-white/[0.02]")
-              td.p-3.text-xs.font-mono {{ issue.id }}
+            tr.border-b.border-appBorder(v-for="task in conductTasks" :key="task.id" class="hover:bg-purple-brand/5")
+              td.p-3(class="text-[10px]").font-mono.text-appTextMuted {{ task.id }}
               td.p-3
                 .flex.items-center.gap-2
-                  span.font-bold.text-sm {{ issue.title }}
-                  .group.relative(v-if="issue.description")
-                    InfoIcon.text-white_20(class="hover:text-redAccent cursor-help" :size="14")
-                    .absolute.left-full.top-0.ml-2.w-80.p-4.bg-obsidian.border.border-white_10.rounded-xl.shadow-2xl.opacity-0.pointer-events-none.transition-all(
-                      class="z-[60] group-hover:opacity-100 group-hover:translate-x-0 translate-x-2 backdrop-blur-xl bg-obsidian/90"
-                    )
-                      p.text-metadata.mb-2.text-redAccent DESCRIPTION / ROOT CAUSE
-                      p.text-xs.font-normal.text-white_80(class="text-white/80 leading-relaxed") {{ issue.description }}
-              td.p-3: span.px-2.py-1.rounded.font-bold.text-white(class="text-[10px]" :class="getPriorityClass(issue.priority)") {{ issue.priority }}
+                  span.font-bold.text-xs {{ task.title }}
+                  InfoIcon(class="text-purple-brand/40" v-if="task.description" :size="12")
+              td.p-3: span(class="text-[9px] px-2 py-0.5").rounded-lg.font-bold.text-white(:class="getPriorityClass(task.priority)") {{ task.priority }}
               td.p-3
-                select.bg-transparent.outline-none.text-sm(v-model="issue.status")
-                  option Open
-                  option In Progress
-                  option Resolved
-                  option Blocked
+                select.bg-transparent.outline-none(class="text-[10px]").font-bold(v-model="task.status")
+                  option(v-for="status in boardStatuses" :key="status" :value="status") {{ status }}
               td.p-3
-                input.bg-transparent.outline-none.text-xs(type="date" v-model="issue.dueDate" class="[color-scheme:dark]")
+                input.bg-transparent.outline-none(class="text-[10px]")(type="date" v-model="task.dueDate" class="[color-scheme:light]")
               td.p-3.flex.gap-4
-                button.text-metadata.hover_text-white(@click="editingIssue = issue") DETAILS
-                button.text-redAccent.opacity-50.hover_opacity-100(@click="deleteIssue(issue.id)") ✕
+                button(class="text-[10px]").font-bold.text-purple-brand(@click="editingTask = task") DETAILS
+                button(class="text-[10px] text-raspberry/50").font-bold.hover_text-raspberry(@click="deleteConductTask(task.id)") ✕
 
     //- Timeline Mode
-    .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col.p-4(v-else-if="currentMode === 'timeline'")
-      .flex.justify-between.mb-4
-        .flex.items-center.gap-6
-          button.px-4.py-1.rounded.text-xs.font-bold.bg-redAccent.text-white(@click="exportPdf") EXPORT PDF
-          .flex.items-center.gap-3
-            .flex.items-center.gap-2
-              span.text-metadata VIEW FROM:
-              input.bg-white_5.border.border-white_10.rounded.px-2.py-0_5.text-xs.w-32(type="date" v-model="timelineRange.start" class="bg-white/5 border-white/10 [color-scheme:dark]")
-            .flex.items-center.gap-2
-              span.text-metadata UNTIL:
-              input.bg-white_5.border.border-white_10.rounded.px-2.py-0_5.text-xs.w-32(type="date" v-model="timelineRange.end" class="bg-white/5 border-white/10 [color-scheme:dark]")
-        .flex.bg-white_5.p-1.rounded-lg(class="bg-white/5")
-          button.px-3.py-1.rounded.text-xs.font-bold(:class="ganttScale === 'day' ? 'bg-redAccent text-white' : 'text-metadata'" @click="ganttScale = 'day'") Day
-          button.px-3.py-1.rounded.text-xs.font-bold(:class="ganttScale === 'date' ? 'bg-redAccent text-white' : 'text-metadata'" @click="ganttScale = 'date'") Date
-
-      .flex-1.overflow-auto.relative.bg-obsidian#gantt-export-container
-        table.w-full.border-collapse.table-fixed.bg-obsidian(class="min-w-[1200px]")
+    .h-full.bg-appBgSoft.rounded-3xl.border.border-appBorder.p-6.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'timeline'")
+      .flex.justify-between.items-center.mb-6
+        h3.text-lg.font-bold PROJECT TIMELINE
+        .flex.gap-3
+          button.px-3.py-1.rounded-lg.text-xs.font-bold.bg-appBg.border.border-appBorder(@click="exportPdf") Export
+      .flex-1.overflow-auto.relative.rounded-2xl.border.border-appBorder#gantt-export-container
+        table.w-full.border-collapse.table-fixed.bg-appBgSoft(class="min-w-[1200px]")
           thead: tr
-            th.w-64.p-2.text-left.text-metadata Task
-            th.p-2.text-center.text-xs.font-bold.border-l.border-white_5(v-for="d in timelineDays" :key="d" class="border-white/5 w-12 bg-[#cfe2f3] text-black")
+            th.w-64.p-3.text-left(class="text-[10px]").font-bold.text-appTextMuted TASK
+            th.p-3.text-center(class="text-[10px]").font-bold.text-appTextMuted.border-l.border-appBorder(v-for="d in timelineDays" :key="d")
               | {{ ganttScale === 'day' ? 'D' + d : formatShortDateFromDay(d) }}
           tbody
-            tr(v-for="task in projectTasksSorted" :key="'gantt-'+task.wbsId" class="border-t border-white/5")
-              td.p-2.truncate.text-sm(:class="{'font-bold text-white': task.isParent}")
-                span(v-if="!task.isParent").mr-2.text-white_40 ↳
+            tr(v-for="task in projectTasksSorted" :key="'gantt-'+task.wbsId" class="border-t border-appBorder")
+              td.p-3.truncate.text-xs(:class="task.isParent ? 'bg-appBg font-bold' : ''")
+                span(v-if="!task.isParent").mr-2.text-appTextMuted ↳
                 | {{ task.wbsId }} - {{ task.title }}
-              td.p-0.relative.border-l.border-white_5(v-for="d in timelineDays" :key="d" class="border-white/5")
-                .absolute.inset-y-2.inset-x-0.rounded-sm(v-if="d >= task.startDay && d <= task.endDay" :class="getGanttBarColor(task)")
+              td.p-0.relative.border-l.border-appBorder(v-for="d in timelineDays" :key="d")
+                .absolute.inset-y-2.inset-x-0.rounded-full(v-if="d >= task.startDay && d <= task.endDay" :class="getGanttBarColor(task)")
 
-    //- Heatmap Mode
-    .h-full.glass-panel.rounded-xl.overflow-hidden.flex.flex-col(v-else-if="currentMode === 'heatmap'")
-      .p-4.border-b.border-white_5.flex.justify-between.items-center(class="border-white/5")
-        .flex.items-center.gap-6
-          h3.text-xl.text-header PROJECT RESOURCE LOAD
-          .flex.items-center.gap-3
-            .flex.items-center.gap-2
-              span.text-metadata VIEW FROM:
-              input.bg-white_5.border.border-white_10.rounded.px-2.py-0_5.text-xs.w-32(type="date" v-model="heatmapRange.start" class="bg-white/5 border-white/10 [color-scheme:dark]")
-            .flex.items-center.gap-2
-              span.text-metadata UNTIL:
-              input.bg-white_5.border.border-white_10.rounded.px-2.py-0_5.text-xs.w-32(type="date" v-model="heatmapRange.end" class="bg-white/5 border-white/10 [color-scheme:dark]")
-          .flex.bg-white_5.p-1.rounded-lg(class="bg-white/5")
-            button.px-3.py-1.rounded.text-xs.font-bold(:class="viewMode === 'hours' ? 'bg-redAccent text-white' : 'text-metadata'" @click="viewMode = 'hours'") HOURS
-            button.px-3.py-1.rounded.text-xs.font-bold(:class="viewMode === 'percent' ? 'bg-redAccent text-white' : 'text-metadata'" @click="viewMode = 'percent'") %
-      .flex-1.overflow-auto.p-4
-        table.w-full.border-collapse.text-left
-          thead: tr
-            th.p-2.border-b.border-white_10.text-metadata(class="border-white/10") OPERATIVE
-            th.p-2.border-b.border-white_10.text-metadata.text-center(v-for="d in heatmapData.dates" :key="d" class="border-white/10") {{ formatShortDate(d) }}
-          tbody
-            tr.border-b.border-white_5(v-for="op in assignedOperatives" :key="op.id" class="border-white/5 hover:bg-white/[0.02]")
-              td.p-2.font-bold.text-sm {{ op.name }}
-              td.p-0.relative(v-for="d in heatmapData.dates" :key="d" class="border-l border-white/5")
-                .absolute.inset-0.opacity-70(:style="{ backgroundColor: getHeatmapColor(heatmapData.heatmap[op.id][d]?.saturation || 0) }")
-                .flex.items-center.justify-center.h-full.relative.z-10.py-2
-                  span.text-xs.font-bold(:class="getSaturationTextColor(heatmapData.heatmap[op.id][d]?.saturation || 0)")
-                    | {{ viewMode === 'hours' ? Math.round(heatmapData.heatmap[op.id][d]?.hoursAssigned || 0) + 'h' : Math.round((heatmapData.heatmap[op.id][d]?.saturation || 0) * 100) + '%' }}
-
-  //- Modal for Task Detail (Edit description, subtasks, assignees)
-  .fixed.inset-0.z-50.flex.items-center.justify-center.bg-black_80.backdrop-blur-md(v-if="editingTask" class="bg-black/80")
-    .glass-card.rounded-2xl.p-10.w-full.max-w-5xl.flex.flex-col.gap-8.border.border-white_10(class="border-white/10")
+  //- Modal for Task Detail
+  .fixed.inset-0.z-50.flex.items-center.justify-center.backdrop-blur-md(class="bg-midnight/80" v-if="editingTask")
+    .bg-appBgSoft.rounded-4xl.p-10.w-full.max-w-4xl.flex.flex-col.gap-8.border.border-appBorder.shadow-2xl
       .flex.justify-between.items-start
         .flex.flex-col
-          h2.text-2xl.text-header EDIT TASK
-          p.text-metadata ID: {{ editingTask.id }}
-        button.text-white_40.hover_text-white(@click="editingTask = null") ✕
+          h2.text-2xl.font-bold EDIT TASK
+          p(class="text-[10px]").font-bold.text-appTextMuted ID: {{ editingTask.id }}
+        button.text-appTextMuted.hover_text-appText(@click="editingTask = null") ✕
       
       .grid.grid-cols-2.gap-8
         .flex.flex-col.gap-4
           .flex.flex-col.gap-1
-            label.text-metadata TITLE
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(v-model="editingTask.title" class="bg-white/5 border-white/10 focus:border-redAccent")
+            label(class="text-[10px]").font-bold.text-appTextMuted TITLE
+            input.bg-appBg.border.border-appBorder.rounded-xl.px-3.py-2.text-sm.outline-none.focus_border-purple-brand(v-model="editingTask.title")
           .flex.flex-col.gap-1
-            label.text-metadata DESCRIPTION
-            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingTask.description" class="bg-white/5 border-white/10 focus:border-redAccent" placeholder="Enter task details...")
+            label(class="text-[10px]").font-bold.text-appTextMuted DESCRIPTION
+            textarea.bg-appBg.border.border-appBorder.rounded-xl.px-3.py-2.text-sm.outline-none.h-32.focus_border-purple-brand(v-model="editingTask.description" placeholder="Task details...")
           .flex.flex-col.gap-1
-            label.text-metadata DEADLINE
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(type="date" v-model="editingTask.dueDate" class="bg-white/5 border-white/10 focus:border-redAccent [color-scheme:dark]")
+            label(class="text-[10px]").font-bold.text-appTextMuted DEADLINE
+            input.bg-appBg.border.border-appBorder.rounded-xl.px-3.py-2.text-sm.outline-none.focus_border-purple-brand(type="date" v-model="editingTask.dueDate")
           .flex.flex-col.gap-1
-            label.text-metadata ASSIGNEES
+            label(class="text-[10px]").font-bold.text-appTextMuted ASSIGNEES
             .flex.flex-wrap.gap-2
-              .flex.items-center.gap-2.bg-white_5.px-2.py-1.rounded.cursor-pointer(
+              .flex.items-center.gap-2.bg-appBg.px-3.py-1.rounded-xl.cursor-pointer.border(
                 v-for="op in appState.operatives" 
                 :key="op.id"
                 @click="toggleConductAssignee(editingTask, op.id)"
-                :class="editingTask.assignees.includes(op.id) ? 'border border-redAccent' : 'border border-transparent'"
+                :class="editingTask.assignees.includes(op.id) ? 'border-purple-brand' : 'border-appBorder'"
               )
-                span.text-xs {{ op.name }}
-                //- Capacity Indicator
-                .w-2.h-2.rounded-full(:class="getResourceLoad(op.id) > 90 ? 'bg-redAccent' : 'bg-green-500'")
+                span.text-xs.font-bold {{ op.name }}
+                .w-2.h-2.rounded-full(:class="getResourceLoad(op.id) > 90 ? 'bg-raspberry' : 'bg-green-500'")
 
         .flex.flex-col.gap-4
-          label.text-metadata SUBTASKS / ACTION ITEMS (HIERARCHY)
+          label(class="text-[10px]").font-bold.text-appTextMuted ACTION ITEMS
           .flex.flex-col.gap-2.max-h-96.overflow-y-auto.pr-2
             .flex.items-center.gap-3(v-for="(st, idx) in editingTask.subtasks" :key="idx" :style="{ paddingLeft: (st.level || 0) * 24 + 'px' }")
-              ChevronRightIcon.text-white_20(v-if="st.level > 0" :size="12")
-              input(type="checkbox" v-model="st.done")
-              input.bg-transparent.outline-none.text-sm.flex-1.border-b.border-white_10(v-model="st.text" placeholder="Subtask...")
+              ChevronRightIcon(class="text-purple-brand/20" v-if="st.level > 0" :size="12")
+              input(type="checkbox" v-model="st.done" class="rounded border-appBorder text-purple-brand focus_ring-purple-brand")
+              input.bg-transparent.outline-none.text-sm.flex-1.border-b.border-appBorder(v-model="st.text" placeholder="Subtask...")
               .flex.gap-1
-                button.p-1.hover_bg-white_10.rounded(@click="st.level = Math.max(0, (st.level || 0) - 1)" title="Outdent") 
-                  span(class="text-[10px]") ←
-                button.p-1.hover_bg-white_10.rounded(@click="st.level = (st.level || 0) + 1" title="Indent")
-                  span(class="text-[10px]") →
-                button.text-redAccent.opacity-50.hover_opacity-100(@click="editingTask.subtasks.splice(idx, 1)") ✕
-          button.w-full.py-2.bg-white_5.rounded.text-metadata.hover_text-white(class="bg-white/5" @click="editingTask.subtasks.push({ text: '', done: false, level: 0 })") + ADD SUBTASK
-
-  //- Modal for Issue Detail
-  .fixed.inset-0.z-50.flex.items-center.justify-center.bg-black_80.backdrop-blur-md(v-if="editingIssue" class="bg-black/80")
-    .glass-card.rounded-2xl.p-10.w-full.max-w-5xl.flex.flex-col.gap-8.border.border-white_10(class="border-white/10")
-      .flex.justify-between.items-start
-        .flex.flex-col
-          h2.text-2xl.text-header RESOLVE ISSUE
-          p.text-metadata ID: {{ editingIssue.id }}
-        button.text-white_40.hover_text-white(@click="editingIssue = null") ✕
-      
-      .grid.grid-cols-2.gap-8
-        .flex.flex-col.gap-4
-          .flex.flex-col.gap-1
-            label.text-metadata TITLE
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(v-model="editingIssue.title" class="bg-white/5 border-white/10 focus:border-redAccent")
-          .flex.flex-col.gap-1
-            label.text-metadata DESCRIPTION / ROOT CAUSE
-            textarea.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none.h-32(v-model="editingIssue.description" class="bg-white/5 border-white/10 focus:border-redAccent" placeholder="Explain the issue...")
-          .flex.flex-col.gap-1
-            label.text-metadata TARGET RESOLUTION
-            input.bg-white_5.border.border-white_10.rounded.px-3.py-2.text-sm.outline-none(type="date" v-model="editingIssue.dueDate" class="bg-white/5 border-white/10 focus:border-redAccent [color-scheme:dark]")
-          .flex.flex-col.gap-1
-            label.text-metadata ASSIGNEES
-            .flex.flex-wrap.gap-2
-              .flex.items-center.gap-2.bg-white_5.px-2.py-1.rounded.cursor-pointer(
-                v-for="op in appState.operatives" 
-                :key="op.id"
-                @click="toggleIssueAssignee(editingIssue, op.id)"
-                :class="editingIssue.assignees.includes(op.id) ? 'border border-redAccent' : 'border border-transparent'"
-              )
-                span.text-xs {{ op.name }}
-
-        .flex.flex-col.gap-4
-          label.text-metadata ACTION ITEMS FOR RESOLUTION
-          .flex.flex-col.gap-2.max-h-64.overflow-y-auto.pr-2
-            .flex.items-center.gap-3(v-for="(st, idx) in editingIssue.subtasks" :key="idx")
-              input(type="checkbox" v-model="st.done")
-              input.bg-transparent.outline-none.text-sm.flex-1.border-b.border-white_10(v-model="st.text" placeholder="Action...")
-              button.text-redAccent.opacity-50(@click="editingIssue.subtasks.splice(idx, 1)") ✕
-          button.w-full.py-2.bg-white_5.rounded.text-metadata.hover_text-white(class="bg-white/5" @click="editingIssue.subtasks.push({ text: '', done: false })") + ADD ACTION ITEM
+                button.p-1.hover_bg-appBg.rounded(@click="st.level = Math.max(0, (st.level || 0) - 1)") ←
+                button.p-1.hover_bg-appBg.rounded(@click="st.level = (st.level || 0) + 1") →
+                button(class="text-raspberry/50" @click="editingTask.subtasks.splice(idx, 1)") ✕
+          button.w-full.py-2.bg-appBg.rounded-xl.text-xs.font-bold.text-appTextMuted.hover_text-appText(@click="editingTask.subtasks.push({ text: '', done: false, level: 0 })") + Add Action Item
 
 </template>
 
@@ -480,13 +311,13 @@ import { Clock as ClockIcon, AlertTriangle as AlertTriangleIcon, Info as InfoIco
 const wbsColumns = reactive([
   { id: 'id', label: 'WBS ID', width: 80 },
   { id: 'name', label: 'Task Name', width: 250 },
-  { id: 'duration', label: 'Duration', width: 80 },
-  { id: 'predecessors', label: 'Pred IDs', width: 100 },
+  { id: 'duration', label: 'Dur', width: 60 },
+  { id: 'predecessors', label: 'Pred', width: 80 },
   { id: 'type', label: 'Type', width: 60 },
   { id: 'lag', label: 'Lag', width: 60 },
   { id: 'start', label: 'Start', width: 60 },
   { id: 'end', label: 'End', width: 60 },
-  { id: 'critical', label: 'Critical', width: 60 },
+  { id: 'critical', label: 'Crit', width: 60 },
   { id: 'progress', label: '%', width: 60 },
   { id: 'resources', label: 'Resources', width: 200 },
   { id: 'delete', label: 'Del', width: 60 },
@@ -519,20 +350,11 @@ const stopResize = () => {
   document.body.style.cursor = '';
 };
 
-const currentMode = ref("overview");
+const currentMode = ref("board");
 const ganttScale = ref("day");
+const timelineRange = reactive({ start: "", end: "" });
 
 const activeProject = computed(() => appState.projects.find((p) => p.id === appState.activeProjectId));
-
-const timelineRange = reactive({
-  start: "",
-  end: ""
-});
-
-const heatmapRange = reactive({
-  start: "",
-  end: ""
-});
 
 const localModes = ref([]);
 
@@ -540,37 +362,27 @@ const initRanges = () => {
   if (activeProject.value) {
     timelineRange.start = activeProject.value.startDate;
     timelineRange.end = format(addDays(parseISO(activeProject.value.startDate), 30), "yyyy-MM-dd");
-    heatmapRange.start = activeProject.value.startDate;
-    heatmapRange.end = format(addDays(parseISO(activeProject.value.startDate), 14), "yyyy-MM-dd");
     
-    // Ensure project has modes for rearranging
     if (!activeProject.value.modes || activeProject.value.modes.length === 0) {
       activeProject.value.modes = [
-        { id: "overview", label: "OVERVIEW" },
-        { id: "board", label: "KANBAN" },
-        { id: "list", label: "WBS" },
-        { id: "tasks", label: "TASKS" },
-        { id: "timeline", label: "TIMELINE" },
-        { id: "heatmap", label: "HEATMAP" },
-        { id: "issues", label: "ISSUES" },
+        { id: "overview", label: "Overview" },
+        { id: "board", label: "Board" },
+        { id: "list", label: "Grid" },
+        { id: "tasks", label: "Tasks" },
+        { id: "timeline", label: "Timeline" },
       ];
     }
     localModes.value = [...activeProject.value.modes];
   }
 };
 
-// Sync local reordering back to the store
 watch(localModes, (newVal) => {
-  if (activeProject.value) {
-    activeProject.value.modes = [...newVal];
-  }
+  if (activeProject.value) activeProject.value.modes = [...newVal];
 }, { deep: true });
 
 onMounted(initRanges);
 watch(() => appState.activeProjectId, initRanges);
 
-const viewMode = ref("hours");
-const newIssue = reactive({ title: "", priority: "Medium" });
 const newConductTask = reactive({ title: "", priority: "Medium" });
 const activeDropdown = ref(null);
 const editingTask = ref(null);
@@ -592,29 +404,16 @@ const projectTasksSorted = computed(() => {
 });
 
 const boardStatuses = ["To Do", "In Progress", "In Review", "Completed"];
-const getWbsTasksByStatus = (status) => projectTasks.value.filter((t) => !t.isParent && t.status === status);
 const getConductTasksByStatus = (status) => conductTasks.value.filter((t) => t.status === status);
 const getIssuesByStatus = (status) => {
   if (!activeProject.value) return [];
-  // Map internal issue status to kanban columns
-  const map = {
-    'Open': 'To Do',
-    'In Progress': 'In Progress',
-    'Resolved': 'Completed',
-    'Blocked': 'In Review'
-  };
+  const map = { 'Open': 'To Do', 'In Progress': 'In Progress', 'Resolved': 'Completed', 'Blocked': 'In Review' };
   return activeProject.value.issues.filter(i => map[i.status] === status);
 };
 
-const onWbsDragChange = (evt, newStatus) => {
-  if (evt.added) {
-    const task = appState.tasks.find(t => t.projectId === evt.added.element.projectId && t.wbsId === evt.added.element.wbsId);
-    if (task) {
-      task.status = newStatus;
-      if (newStatus === "Completed") task.progress = 100;
-      calculateSchedule();
-    }
-  }
+const getStatusColorClass = (status) => {
+  const map = { 'To Do': 'bg-text-secondary', 'In Progress': 'bg-purple-brand', 'In Review': 'bg-tuscany', 'Completed': 'bg-green-500' };
+  return map[status];
 };
 
 const onConductDragChange = (evt, newStatus) => {
@@ -628,12 +427,7 @@ const onIssueDragChange = (evt, newStatus) => {
   if (evt.added && activeProject.value) {
     const issue = activeProject.value.issues.find(i => i.id === evt.added.element.id);
     if (issue) {
-      const map = {
-        'To Do': 'Open',
-        'In Progress': 'In Progress',
-        'Completed': 'Resolved',
-        'In Review': 'Blocked'
-      };
+      const map = { 'To Do': 'Open', 'In Progress': 'In Progress', 'Completed': 'Resolved', 'In Review': 'Blocked' };
       issue.status = map[newStatus];
     }
   }
@@ -642,16 +436,7 @@ const onIssueDragChange = (evt, newStatus) => {
 const getOperativeName = (id) => appState.operatives.find((o) => o.id === id)?.name || "Unknown";
 const onUpdateTasks = () => calculateSchedule();
 
-const toggleDropdown = (id) => {
-  activeDropdown.value = activeDropdown.value === id ? null : id;
-};
-
-const closeDropdowns = (e) => {
-  if (!e.target.closest('.relative')) activeDropdown.value = null;
-};
-
-onMounted(() => window.addEventListener('click', closeDropdowns));
-onUnmounted(() => window.removeEventListener('click', closeDropdowns));
+const toggleDropdown = (id) => { activeDropdown.value = activeDropdown.value === id ? null : id; };
 
 const updatePredecessors = (task, val) => {
   task.predecessorIds = val.split(",").map(s => s.trim()).filter(s => s);
@@ -666,11 +451,6 @@ const toggleAssignee = (task, opId) => {
 const toggleConductAssignee = (task, opId) => {
   if (!task.assignees) task.assignees = [];
   task.assignees = task.assignees.includes(opId) ? task.assignees.filter(id => id !== opId) : [...task.assignees, opId];
-};
-
-const toggleIssueAssignee = (issue, opId) => {
-  if (!issue.assignees) issue.assignees = [];
-  issue.assignees = issue.assignees.includes(opId) ? issue.assignees.filter(id => id !== opId) : [...issue.assignees, opId];
 };
 
 const addParentTask = () => {
@@ -717,67 +497,30 @@ const deleteConductTask = (id) => {
   appState.conductTasks = appState.conductTasks.filter(t => t.id !== id);
 };
 
-const addIssue = () => {
-  if (!newIssue.title || !activeProject.value) return;
-  activeProject.value.issues.push({ 
-    id: 'ISS-' + Date.now().toString().slice(-4), 
-    title: newIssue.title, 
-    description: "",
-    priority: newIssue.priority, 
-    status: "Open", 
-    type: "Bug",
-    dueDate: format(addDays(new Date(), 3), "yyyy-MM-dd"),
-    assignees: [],
-    subtasks: []
-  });
-  newIssue.title = "";
-};
+const getPriorityClass = (p) => ({ 'bg-raspberry': p === 'Critical' || p === 'High', 'bg-purple-brand': p === 'Medium', 'bg-text-secondary': p === 'Low' });
 
-const deleteIssue = (id) => {
-  if (activeProject.value) activeProject.value.issues = activeProject.value.issues.filter(i => i.id !== id);
+const getResourceLoad = (opId) => {
+  const opTasks = appState.tasks.filter(t => !t.isParent && t.status !== 'Completed' && t.assignees.includes(opId));
+  return Math.round((opTasks.reduce((sum, t) => sum + t.duration, 0) / 20) * 100);
 };
-
-const getPriorityClass = (p) => ({ 'bg-redAccent': p === 'Critical' || p === 'High', 'bg-blue-500': p === 'Medium', 'bg-gray-500': p === 'Low' });
-const formatShortDateFromDay = (d) => activeProject.value ? format(addDays(parseISO(activeProject.value.startDate), d - 1), "MMM d") : "";
-const getGanttBarColor = (t) => t.isParent ? 'bg-[#EADDCA]' : (t.isCritical ? 'bg-redAccent' : 'bg-teal-500');
 
 const timelineDays = computed(() => {
   if (!activeProject.value || !timelineRange.start || !timelineRange.end) return [];
   const startOffset = differenceInDays(parseISO(timelineRange.start), parseISO(activeProject.value.startDate)) + 1;
   const range = differenceInDays(parseISO(timelineRange.end), parseISO(timelineRange.start)) + 1;
   const days = [];
-  for (let i = 0; i < range; i++) {
-    days.push(startOffset + i);
-  }
+  for (let i = 0; i < range; i++) days.push(startOffset + i);
   return days;
 });
 
+const getGanttBarColor = (t) => t.isParent ? 'bg-purple-brand/20' : (t.isCritical ? 'bg-raspberry' : 'bg-purple-brand');
+const formatShortDateFromDay = (d) => activeProject.value ? format(addDays(parseISO(activeProject.value.startDate), d - 1), "MMM d") : "";
+
 const exportPdf = async () => {
-  const canvas = await html2canvas(document.getElementById("gantt-export-container"), { scale: 2, backgroundColor: "#0B0B0D" });
+  const canvas = await html2canvas(document.getElementById("gantt-export-container"), { scale: 2 });
   const pdf = new jsPDF("l", "pt", [canvas.width, canvas.height]);
   pdf.addImage(canvas.toDataURL("image/jpeg", 1.0), "JPEG", 0, 0, canvas.width, canvas.height);
   pdf.save("Timeline.pdf");
 };
-
-const assignedOperatives = computed(() => {
-  const ids = new Set();
-  projectTasks.value.forEach(t => t.assignees?.forEach(id => ids.add(id)));
-  return appState.operatives.filter(o => ids.has(o.id));
-});
-
-const heatmapData = computed(() => {
-  if (!activeProject.value || !heatmapRange.start || !heatmapRange.end) return { dates: [], heatmap: {} };
-  const range = differenceInDays(parseISO(heatmapRange.end), parseISO(heatmapRange.start)) + 1;
-  return getResourceHeatmap(heatmapRange.start, range);
-});
-
-const getResourceLoad = (opId) => {
-  const opTasks = appState.tasks.filter(t => !t.isParent && t.status !== 'Completed' && t.assignees.includes(opId));
-  const totalLoad = opTasks.reduce((sum, t) => sum + t.duration, 0);
-  return Math.round((totalLoad / 20) * 100);
-};
-
-const formatShortDate = (d) => format(parseISO(d), "MMM d");
-const getHeatmapColor = (s) => s === 0 ? 'transparent' : (s < 0.5 ? '#EAB308' : (s <= 1.0 ? '#0D9488' : '#E01E2E'));
-const getSaturationTextColor = (s) => s === 0 ? 'text-transparent' : (s < 0.5 ? 'text-black' : 'text-white');
 </script>
+

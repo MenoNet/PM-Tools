@@ -1,41 +1,103 @@
 <template lang="pug">
 .flex.h-screen.w-screen.overflow-hidden(:class="appState.theme")
   //- Sidebar Navigation
-  aside.w-20.flex-shrink-0.flex.flex-col.items-center.py-8.border-r.glass-panel(class="border-white/[0.05]")
-    .mb-12
+  aside.w-64.flex-shrink-0.flex.flex-col.bg-appBgSoft.border-r.border-appBorder.transition-colors.duration-300
+    .p-6.flex.flex-col.gap-8.h-full
       //- Brand Logo
-      .w-12.h-12.rounded-lg.flex.items-center.justify-center.overflow-hidden
-        img.w-full.h-full.object-cover(src="/logo.png" alt="Dekode Logo")
-    
-    nav.flex-1.flex.flex-col.gap-8
-      button.p-3.rounded-xl.transition-all.duration-700(
-        v-for="item in menuItems" 
-        :key="item.id"
-        @click="currentView = item.id"
-        :class="currentView === item.id ? 'bg-redAccent text-white shadow-[0_0_15px_rgba(224,30,46,0.5)]' : 'text-metadata hover_text-white'"
-      )
-        component(:is="item.icon" :size="24")
-    
-    //- Theme Toggle
-    button.p-3.rounded-xl.text-metadata.hover_text-white.transition-all(@click="toggleTheme")
-      component(:is="appState.theme === 'dark' ? SunIcon : MoonIcon" :size="24")
+      .flex.items-center.gap-3
+        .w-8.h-8.rounded-lg.brand-gradient.flex.items-center.justify-center.text-white
+          component(:is="AppIcon" :size="20")
+        span.font-bold.tracking-tight.text-xl appflowy
+      
+      //- User Profile
+      .flex.items-center.gap-3.p-2.rounded-xl.hover_bg-appBg.transition-all.cursor-pointer
+        .w-8.h-8.rounded-full.bg-purple-brand.flex.items-center.justify-center.text-white.font-bold AM
+        .flex.flex-col.flex-1
+          span.text-xs.font-bold.truncate Amrita Menon
+          span(class="text-[10px]").text-appTextMuted.truncate Administrator
+        ChevronDownIcon.text-appTextMuted(:size="14")
+
+      //- Navigation Groups
+      nav.flex-1.flex.flex-col.gap-6.overflow-y-auto.pr-2
+        //- Core
+        .flex.flex-col.gap-1
+          button.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.group(
+            @click="currentView = 'dashboard'"
+            :class="currentView === 'dashboard' ? 'bg-appBg text-purple-brand' : 'text-appTextMuted hover_bg-appBg'"
+          )
+            DashboardIcon(:size="18")
+            span.text-sm.font-medium My Dashboard
+          
+          button.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.group.text-appTextMuted.hover_bg-appBg
+            StarIcon(:size="18")
+            span.text-sm.font-medium Favorites
+
+        //- Project Management
+        .flex.flex-col.gap-1
+          .flex.items-center.justify-between.px-3.py-2
+            span(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest Project Management
+            PlusIcon.text-appTextMuted.cursor-pointer.hover_text-purple-brand(:size="14")
+          
+          button.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.group(
+            @click="currentView = 'projects'"
+            :class="currentView === 'projects' ? 'bg-appBg text-purple-brand' : 'text-appTextMuted hover_bg-appBg'"
+          )
+            ProjectsIcon(:size="18")
+            span.text-sm.font-medium Portfolio
+          
+          button.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.group(
+            @click="currentView = 'team'"
+            :class="currentView === 'team' ? 'bg-appBg text-purple-brand' : 'text-appTextMuted hover_bg-appBg'"
+          )
+            TeamIcon(:size="18")
+            span.text-sm.font-medium Resources
+
+        //- Help & Guides
+        .flex.flex-col.gap-1
+          .flex.items-center.justify-between.px-3.py-2
+            span(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest Support
+          
+          button.flex.items-center.gap-3.px-3.py-2.rounded-lg.transition-all.group(
+            @click="currentView = 'guide'"
+            :class="currentView === 'guide' ? 'bg-appBg text-purple-brand' : 'text-appTextMuted hover_bg-appBg'"
+          )
+            GuideIcon(:size="18")
+            span.text-sm.font-medium User Guide
+
+      //- Bottom Controls
+      .flex.flex-col.gap-2.pt-4.border-t.border-appBorder
+        button.flex.items-center.gap-3.px-3.py-2.rounded-lg.text-appTextMuted.hover_bg-appBg.transition-all(@click="toggleTheme")
+          component(:is="appState.theme === 'dark' ? SunIcon : MoonIcon" :size="18")
+          span.text-sm.font-medium {{ appState.theme === 'dark' ? 'Light Mode' : 'Dark Mode' }}
+        
+        button.flex.items-center.gap-3.px-3.py-2.rounded-lg.text-appTextMuted.hover_bg-appBg.transition-all
+          TrashIcon(:size="18")
+          span.text-sm.font-medium Trash
 
   //- Main Content Area
-  main.flex-1.flex.flex-col.p-8.overflow-hidden.bg-app-bg
-    header.flex.justify-between.items-center.mb-8.flex-shrink-0
-      .flex.flex-col
-        h1.text-3xl.text-header DEKODE PM TOOLS
-        p.text-metadata(class="text-opacity-60") COMMAND &amp; CONTROL CENTER
+  main.flex-1.flex.flex-col.p-6.overflow-hidden.bg-appBg
+    //- Header with Breadcrumbs & Actions
+    header.flex.justify-between.items-center.mb-6.flex-shrink-0
+      .flex.items-center.gap-3
+        .flex.items-center.gap-2.text-appTextMuted.text-sm
+          span Project Management
+          span /
+          span.font-bold.text-appText {{ viewLabels[currentView] }}
       
-      .flex.items-center.gap-6
-        .flex.flex-col.items-end
-          span.text-metadata(class="text-[9px] tracking-[0.2em]") SYSTEM CLOCK (MYT)
-          span.font-mono.text-redAccent.text-xl.font-bold {{ currentTime }}
-        .w-12.h-12.rounded-full.bg-white_5.flex.items-center.justify-center.border.border-white_10(class="bg-white/5 border-white/10")
-          span.font-black AM
+      .flex.items-center.gap-4
+        .relative
+          SearchIcon.absolute.left-3.top-1/2.-translate-y-1/2.text-appTextMuted(:size="16")
+          input.bg-appBgSoft.border.border-appBorder.rounded-xl.pl-10.pr-4.py-2.text-sm.w-64.outline-none.focus_border-purple-brand.transition-all(placeholder="Search...")
+        
+        button.btn-primary.flex.items-center.gap-2
+          span Share
+          ShareIcon(:size="14")
+        
+        button.p-2.rounded-lg.hover_bg-appBgSoft.text-appTextMuted
+          MoreVerticalIcon(:size="18")
 
-    //- Content Switching
-    .flex-1.min-h-0
+    //- Content Switching (Wrapped in a container with rounded corners like the image)
+    .flex-1.min-h-0.bg-appBgSoft.rounded-3xl.border.border-appBorder.shadow-premium-light.overflow-hidden.p-6
       Transition(name="fade" mode="out-in")
         DashboardView(v-if="currentView === 'dashboard'" class="h-full" @open-project="openProject")
         ProjectsList(v-else-if="currentView === 'projects'" class="h-full" @open-project="openProject")
@@ -53,7 +115,15 @@ import {
   Activity as ActivityIcon,
   Sun as SunIcon,
   Moon as MoonIcon,
-  HelpCircle as GuideIcon
+  HelpCircle as GuideIcon,
+  Star as StarIcon,
+  Plus as PlusIcon,
+  Trash2 as TrashIcon,
+  ChevronDown as ChevronDownIcon,
+  Search as SearchIcon,
+  Share2 as ShareIcon,
+  MoreVertical as MoreVerticalIcon,
+  Layers as AppIcon
 } from "lucide-vue-next";
 import { appState } from "./store/appState";
 
@@ -65,30 +135,14 @@ import TeamView from "./views/TeamView.vue";
 import UserGuide from "./views/UserGuide.vue";
 
 const currentView = ref("dashboard");
-const currentTime = ref("");
 
-const menuItems = [
-  { id: "dashboard", icon: DashboardIcon, label: "Dashboard" },
-  { id: "projects", icon: ProjectsIcon, label: "Portfolio" },
-  { id: "team", icon: TeamIcon, label: "Resources" },
-  { id: "guide", icon: GuideIcon, label: "Guide" },
-];
-
-const updateClock = () => {
-  const now = new Date();
-  // Malaysian Time (UTC+8)
-  currentTime.value = now.toLocaleTimeString('en-GB', { 
-    hour12: false,
-    timeZone: 'Asia/Kuala_Lumpur'
-  });
+const viewLabels = {
+  dashboard: "Dashboard",
+  projects: "Portfolio",
+  detail: "Project Detail",
+  team: "Resources",
+  guide: "User Guide"
 };
-
-let clockInterval;
-onMounted(() => {
-  updateClock();
-  clockInterval = setInterval(updateClock, 1000);
-});
-onUnmounted(() => clearInterval(clockInterval));
 
 const toggleTheme = () => {
   appState.theme = appState.theme === 'dark' ? 'light' : 'dark';

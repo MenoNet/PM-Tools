@@ -1,147 +1,147 @@
 <template lang="pug">
-.h-full.flex.gap-8.overflow-hidden.p-2
-  //- Sticky Side Navigation for quick jump
-  aside.w-64.flex-shrink-0.flex.flex-col.gap-4.sticky.top-0
-    .glass-card.rounded-2xl.p-6.flex.flex-col.gap-6
-      h4.text-header.text-xs.contents-label(class="tracking-[0.2em]") CONTENTS
-      nav.flex.flex-col.gap-2
-        a.text-sm.text-metadata.hover_text-white.transition-all(
+.h-full.flex.gap-10.overflow-hidden
+  //- Sticky Side Navigation
+  aside.w-64.flex-shrink-0.flex.flex-col.gap-6.sticky.top-0
+    .bg-appBgSoft.rounded-3xl.p-8.flex.flex-col.gap-8.border.border-appBorder
+      h4(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest CONTENTS
+      nav.flex.flex-col.gap-3
+        a.text-xs.font-bold.text-appTextMuted.hover_text-purple-brand.transition-all(
           v-for="section in guideSections" 
           :key="section.id"
           :href="'#' + section.id"
           class="hover:translate-x-1"
         ) {{ section.title }}
     
-    .glass-panel.rounded-2xl.p-6.flex.flex-col.gap-3
-      span.text-metadata(class="text-[10px]") SYSTEM STATUS
+    .bg-appBgSoft.rounded-3xl.p-8.flex.flex-col.gap-3.border.border-appBorder
+      span(class="text-[10px]").font-bold.text-appTextMuted SYSTEM STATUS
       .flex.items-center.gap-2
         .w-2.h-2.rounded-full.bg-green-500.animate-pulse
-        span.text-xs.font-bold DEPLOYED & STABLE
-      p.text-metadata.mt-2(class="text-[10px]") VERSION 4.0.0 (MYT)
+        span.text-xs.font-bold.text-appText OPERATIONAL
+      p(class="text-[10px]").font-bold.text-appTextMuted.mt-2 VERSION 5.0.0 (MYT)
 
   //- Main Scrollable Content
   .flex-1.overflow-y-auto.pr-4.scroll-smooth
-    .flex.flex-col.gap-12.pb-20
+    .flex.flex-col.gap-20.pb-32
       //- Header Section
-      header.flex.flex-col.gap-4
-        .flex.items-center.gap-4
-          .w-12.h-12.rounded-xl.bg-redAccent.flex.items-center.justify-center.shadow-lg
-            BookOpenIcon.text-white(:size="24")
+      header.flex.flex-col.gap-6
+        .flex.items-center.gap-6
+          .w-16.h-16.rounded-2xl.bg-purple-brand.flex.items-center.justify-center.shadow-premium
+            BookOpenIcon.text-white(:size="32")
           .flex.flex-col
-            h1.text-4xl.text-header DEKODE PM TOOLS
-            p.text-metadata.tracking-widest OPERATIONAL PROTOCOLS & MANUAL
+            h1.text-4xl.font-black.text-appText COMMAND MANUAL
+            p(class="text-[10px]").font-bold.text-appTextMuted.uppercase.tracking-widest.mt-1 Operational Protocols & Systems Guide
         
-        .glass-panel.rounded-2xl.p-6(class="bg-redAccent/5 border-redAccent/20")
-          p.text-sm.leading-relaxed.text-white_80(class="text-white/80")
+        .rounded-3xl.p-8(class="bg-purple-brand/5 border border-purple-brand/10")
+          p.text-sm.leading-relaxed.text-appText.font-medium
             | Welcome to the Dekode command deck. This manual provides the strategic and tactical logic required to operate the multi-project control suite. 
             | The system is designed to separate high-level scheduling from granular daily execution.
 
       //- Section 01: Navigation
-      section#navigation.flex.flex-col.gap-6
-        .flex.items-center.gap-3
-          span.text-3xl.font-black.text-redAccent 01
-          h2.text-2xl.text-header NAVIGATION ARCHITECTURE
+      section#navigation.flex.flex-col.gap-8
+        .flex.items-center.gap-4
+          span.text-4xl.font-black.text-purple-brand 01
+          h2.text-2xl.font-bold.text-appText NAVIGATION ARCHITECTURE
         
-        .grid.grid-cols-2.gap-6
-          .glass-card.p-6.rounded-2xl.flex.flex-col.gap-4.border-white_5(class="border-white/5")
+        .grid.grid-cols-2.gap-8
+          .bg-appBgSoft.p-8.rounded-3xl.flex.flex-col.gap-4.border.border-appBorder
             .flex.items-center.gap-3
-              LayoutDashboardIcon.text-redAccent(:size="20")
-              h3.font-bold DASHBOARD CONTROL
-            p.text-sm.text-metadata.leading-relaxed
+              LayoutDashboardIcon.text-purple-brand(:size="24")
+              h3.text-lg.font-bold.text-appText DASHBOARD CONTROL
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | The primary intelligence hub. View global portfolio health, active blockers, and upcoming deadlines. 
               | Use the **Context Selector** to filter between the entire organization or a specific initiative.
           
-          .glass-card.p-6.rounded-2xl.flex.flex-col.gap-4.border-white_5(class="border-white/5")
+          .bg-appBgSoft.p-8.rounded-3xl.flex.flex-col.gap-4.border.border-appBorder
             .flex.items-center.gap-3
-              BriefcaseIcon.text-redAccent(:size="20")
-              h3.font-bold PROJECT PORTFOLIO
-            p.text-sm.text-metadata.leading-relaxed
+              BriefcaseIcon.text-purple-brand(:size="24")
+              h3.text-lg.font-bold.text-appText PROJECT PORTFOLIO
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | The registry for all active initiatives. From here, you can dive into deep project controls including WBS, 
               | Gantt timelines, and tactical task management.
 
       //- Section 02: Strategic vs Tactical
-      section#execution.flex.flex-col.gap-6
-        .flex.items-center.gap-3
-          span.text-3xl.font-black.text-redAccent 02
-          h2.text-2xl.text-header STRATEGIC vs TACTICAL EXECUTION
+      section#execution.flex.flex-col.gap-8
+        .flex.items-center.gap-4
+          span.text-4xl.font-black.text-purple-brand 02
+          h2.text-2xl.font-bold.text-appText STRATEGIC vs TACTICAL EXECUTION
         
-        .glass-panel.p-8.rounded-3xl.flex.flex-col.gap-8
+        .bg-appBgSoft.p-10.rounded-4xl.flex.flex-col.gap-10.border.border-appBorder
           .flex.flex-col.gap-4
-            h3.text-lg.font-bold.text-white THE SCHEDULING ENGINE (WBS)
-            p.text-sm.text-metadata.leading-relaxed
+            h3.text-xl.font-bold.text-appText THE SCHEDULING ENGINE (WBS)
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | The **Work Breakdown Structure (WBS)** is the project's skeleton. It defines the "When" and "How Long." 
               | It supports complex dependency logic (FS, SS, FF, SF) and automatically calculates the **Critical Path**.
-            .bg-white_5.p-4.rounded-xl.border(class="bg-white/5 border-white/10")
-              p.text-xs.italic.text-white_60
+            .bg-appBg.p-4.rounded-2xl.border.border-appBorder
+              p.text-xs.italic.text-appTextMuted
                 | "Strategic tasks represent project milestones and phases. They should be high-level and duration-based."
 
           .flex.flex-col.gap-4
-            h3.text-lg.font-bold.text-white THE CONDUCT ENGINE (TASKS)
-            p.text-sm.text-metadata.leading-relaxed
+            h3.text-xl.font-bold.text-appText THE CONDUCT ENGINE (TASKS)
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | **Task Management** handles the "What." These are granular, daily action items that do not necessarily 
               | impact the critical path but are vital for completion. 
-            .flex.flex-col.gap-2.bg-redAccent_5.p-4.rounded-xl.border(class="bg-redAccent/5 border-redAccent/10")
-              p.text-xs.font-bold.text-redAccent TACTICAL FEATURES:
-              ul.list-disc.list-inside.text-metadata.flex.flex-col.gap-1(class="text-[11px]")
+            .flex.flex-col.gap-4.p-6.rounded-3xl(class="bg-purple-brand/5 border border-purple-brand/10")
+              p(class="text-[10px]").font-bold.text-purple-brand.uppercase.tracking-widest TACTICAL FEATURES
+              ul.list-disc.list-inside.text-appTextMuted.flex.flex-col.gap-2.text-xs.font-bold
                 li Nested Checklists / Action Items
                 li Specific Calendar Deadlines
                 li Individual Assignee Assignments
                 li Rich Text Descriptions
 
       //- Section 03: Resource Health
-      section#resources.flex.flex-col.gap-6
-        .flex.items-center.gap-3
-          span.text-3xl.font-black.text-redAccent 03
-          h2.text-2xl.text-header RESOURCE HEALTH & SATURATION
+      section#resources.flex.flex-col.gap-8
+        .flex.items-center.gap-4
+          span.text-4xl.font-black.text-purple-brand 03
+          h2.text-2xl.font-bold.text-appText RESOURCE HEALTH & SATURATION
         
-        .grid.grid-cols-2.gap-6
-          .flex.flex-col.gap-4
-            p.text-sm.text-metadata.leading-relaxed
+        .grid.grid-cols-2.gap-10
+          .flex.flex-col.gap-6
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | A project's success depends on operative availability. The **Heatmap** provides a 
               | saturation-aware view of team load.
-            .glass-panel.p-4.rounded-xl.flex.flex-col.gap-4
-              h4.text-xs.font-bold INDICATOR LOGIC
-              .flex.flex-col.gap-3
+            .bg-appBgSoft.p-6.rounded-3xl.flex.flex-col.gap-6.border.border-appBorder
+              h4(class="text-[10px]").font-bold.text-appTextMuted INDICATOR LOGIC
+              .flex.flex-col.gap-4
                 .flex.items-center.gap-3
-                  .w-3.h-3.rounded-full.bg-green-500
-                  span.text-xs.text-metadata < 70% Saturation (Nominal)
+                  .w-3.h-3.rounded-full.bg-tuscany
+                  span.text-xs.font-bold.text-appTextMuted < 70% Saturation (Nominal)
                 .flex.items-center.gap-3
-                  .w-3.h-3.rounded-full.bg-yellow-500
-                  span.text-xs.text-metadata 70% - 90% Saturation (Warning)
+                  .w-3.h-3.rounded-full.bg-purple-brand
+                  span.text-xs.font-bold.text-appTextMuted 70% - 90% Saturation (Optimal)
                 .flex.items-center.gap-3
-                  .w-3.h-3.rounded-full.bg-redAccent
-                  span.text-xs.text-metadata > 90% Saturation (Overload)
+                  .w-3.h-3.rounded-full.bg-raspberry
+                  span.text-xs.font-bold.text-appTextMuted > 90% Saturation (Overload)
 
-          .glass-card.p-6.rounded-2xl.border-white_5(class="border-white/5")
-            h4.font-bold.mb-4.text-sm DYNAMIC ASSIGNMENT
-            p.text-sm.text-metadata.leading-relaxed
+          .bg-appBgSoft.p-8.rounded-3xl.border.border-appBorder.flex.flex-col.gap-6
+            h4.text-sm.font-bold.text-appText DYNAMIC ASSIGNMENT
+            p.text-sm.text-appTextMuted.leading-relaxed.font-medium
               | When assigning tasks or issues, the system displays a real-time capacity pulse next to each operative. 
-              | Avoid assigning "Red" operatives to maintain team health.
+              | Avoid assigning "Overloaded" operatives to maintain team health and prevent burnout.
 
       //- Section 04: Risk Mitigation
-      section#risks.flex.flex-col.gap-6
-        .flex.items-center.gap-3
-          span.text-3xl.font-black.text-redAccent 04
-          h2.text-header.text-2xl RISK MITIGATION (ISSUES)
+      section#risks.flex.flex-col.gap-8
+        .flex.items-center.gap-4
+          span.text-4xl.font-black.text-purple-brand 04
+          h2.text-2xl.font-bold.text-appText RISK MITIGATION (ISSUES)
         
-        .glass-panel.p-6.rounded-2xl.flex.flex-col.gap-4
-          p.text-sm.text-metadata.leading-relaxed
+        .bg-appBgSoft.p-10.rounded-4xl.flex.flex-col.gap-6.border.border-appBorder
+          p.text-sm.text-appTextMuted.leading-relaxed.font-medium
             | The **Issues** module is for tracking impediments that stop work. Issues are distinct from tasks 
             | as they represent risks that require resolution plans.
-          .grid.grid-cols-3.gap-4.mt-2
-            .p-4.bg-white_5.rounded-xl(class="bg-white/5")
-              h5.font-bold.text-xs IDENTIFY
-              p.text-metadata(class="text-[10px]") Log the root cause and priority level.
-            .p-4.bg-white_5.rounded-xl(class="bg-white/5")
-              h5.font-bold.text-xs ESCALATE
-              p.text-metadata(class="text-[10px]") Critical issues appear on the global dashboard.
-            .p-4.bg-white_5.rounded-xl(class="bg-white/5")
-              h5.font-bold.text-xs RESOLVE
-              p.text-metadata(class="text-[10px]") Track action items until the impediment is cleared.
+          .grid.grid-cols-3.gap-6.mt-4
+            .p-6.bg-appBg.rounded-3xl.border.border-appBorder
+              h5.font-bold.text-sm.text-appText IDENTIFY
+              p(class="text-[10px]").font-bold.text-appTextMuted.mt-2 Log the root cause and priority level.
+            .p-6.bg-appBg.rounded-3xl.border.border-appBorder
+              h5.font-bold.text-sm.text-appText ESCALATE
+              p(class="text-[10px]").font-bold.text-appTextMuted.mt-2 Critical issues appear on the global dashboard.
+            .p-6.bg-appBg.rounded-3xl.border.border-appBorder
+              h5.font-bold.text-sm.text-appText RESOLVE
+              p(class="text-[10px]").font-bold.text-appTextMuted.mt-2 Track action items until the impediment is cleared.
 
-      footer.mt-12.pt-8.border-t.border-white_10.flex.justify-between.items-center(class="border-white/10")
-        p.text-metadata(class="text-[10px]") © 2026 DEKODE PM TOOLS // ALL RIGHTS RESERVED
-        p.text-metadata(class="text-[10px]") ENCRYPTED PROTOCOL 0x77-A
+      footer.mt-12.pt-8.border-t.border-appBorder.flex.justify-between.items-center
+        p(class="text-[10px]").font-bold.text-appTextMuted © 2026 DEKODE PM TOOLS // ALL RIGHTS RESERVED
+        p(class="text-[10px]").font-bold.text-appTextMuted PROTOCOL SECURE 0x77-A
 </template>
 
 <script setup>
@@ -156,46 +156,29 @@ import {
 } from "lucide-vue-next";
 
 const guideSections = [
-  { id: 'navigation', title: '01 Navigation Architecture' },
-  { id: 'execution', title: '02 Strategic vs Tactical' },
-  { id: 'resources', title: '03 Resource Health' },
-  { id: 'risks', title: '04 Risk Mitigation' },
+  { id: 'navigation', title: '01 NAVIGATION ARCHITECTURE' },
+  { id: 'execution', title: '02 STRATEGIC VS TACTICAL' },
+  { id: 'resources', title: '03 RESOURCE HEALTH' },
+  { id: 'risks', title: '04 RISK MITIGATION' },
 ];
 </script>
 
 <style scoped>
-/* Ensure high readability for guide text */
-p {
-  font-family: 'Inter', sans-serif;
-  letter-spacing: 0.01em;
-}
-
-h1, h2, h3, h4 {
-  font-family: 'Outfit', sans-serif;
-  font-weight: 600;
-}
-
-.text-header {
-  letter-spacing: 0.05em;
-}
-
-/* Smooth scrolling for anchor links */
 .scroll-smooth {
   scroll-behavior: smooth;
 }
 
-/* Scrollbar styling for the guide */
-.overflow-y-auto::-webkit-scrollbar {
+::-webkit-scrollbar {
   width: 4px;
 }
-.overflow-y-auto::-webkit-scrollbar-track {
+::-webkit-scrollbar-track {
   background: transparent;
 }
-.overflow-y-auto::-webkit-scrollbar-thumb {
-  background: rgba(224, 30, 46, 0.2);
+::-webkit-scrollbar-thumb {
+  background: rgba(127, 36, 221, 0.1);
   border-radius: 10px;
 }
-.overflow-y-auto::-webkit-scrollbar-thumb:hover {
-  background: rgba(224, 30, 46, 0.4);
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(127, 36, 221, 0.2);
 }
 </style>
